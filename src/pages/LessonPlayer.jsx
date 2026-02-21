@@ -1,114 +1,186 @@
-import { useState, useEffect } from 'react'
-import { useTyping } from '../hooks/useTyping'
-import { useTimer } from '../hooks/useTimer'
-import { useSound } from '../hooks/useSound'
-import { useProgress } from '../context/ProgressContext'
-import { useApp } from '../context/AppContext'
-import { GhostText } from '../components/typing/GhostText'
-import { VirtualKeyboard } from '../components/typing/VirtualKeyboard'
-import { MetricsBar } from '../components/stats/MetricsBar'
-import { Button } from '../components/ui/Button'
-import { Modal } from '../components/ui/Modal'
-import { getGrade } from '../utils/helpers'
+import { useState, useEffect, useRef } from "react";
+import { useTyping } from "../hooks/useTyping";
+import { useTimer } from "../hooks/useTimer";
+import { useSound } from "../hooks/useSound";
+import { useProgress } from "../context/ProgressContext";
+import { useApp } from "../context/AppContext";
+import { GhostText } from "../components/typing/GhostText";
+import { MetricsBar } from "../components/stats/MetricsBar";
+import { Button } from "../components/ui/Button";
+import { Modal } from "../components/ui/Modal";
+import { getGrade } from "../utils/helpers";
 
-export const LessonPlayer = ({ lesson, levelName }) => {
-  const [isActive, setIsActive] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-  const { play } = useSound()
-  const { completeLesson } = useProgress()
-  const { showAchievementPopup } = useApp()
+export const LessonPlayer = ({ lesson, levelName, onNextLesson }) => {
+  const [isActive, setIsActive] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
+  const inputRef = useRef(null);
+  const { play } = useSound();
+  const { completeLesson } = useProgress();
+  const { showAchievementPopup } = useApp();
+
+  const handleFirstKey = () => {
+    if (!timerStarted) {
+      setTimerStarted(true);
+    }
+  };
 
   const {
-    currentIndex,
-    typedChars,
+    typedText,
     wpm,
     accuracy,
     isComplete,
-    activeKey,
-    errorKey,
     updateWPM,
-    reset: resetTyping
-  } = useTyping(lesson.text, isActive)
+    reset: resetTyping,
+  } = useTyping(lesson.text, isActive, handleFirstKey);
 
-  const { time, reset: resetTimer } = useTimer(isActive, lesson.timeLimit)
+  const { time, reset: resetTimer } = useTimer(timerStarted, lesson.timeLimit);
+
+  // Reset everything when lesson changes
+  useEffect(() => {
+    resetTyping();
+    resetTimer();
+    setIsActive(false);
+    setShowResults(false);
+    setTimerStarted(false);
+  }, [lesson.id]);
 
   useEffect(() => {
-    if (isActive && time > 0) {
-      updateWPM(time)
+    if (timerStarted && time > 0) {
+      updateWPM(time);
     }
-  }, [time, isActive, updateWPM])
+  }, [time, timerStarted, updateWPM]);
 
   useEffect(() => {
     if (isComplete) {
-      setIsActive(false)
-      setShowResults(true)
-      
-      const passed = accuracy >= lesson.minAccuracy && (!lesson.minWPM || wpm >= lesson.minWPM)
-      
+      setIsActive(false);
+      setTimerStarted(false);
+      setShowResults(true);
+
+      const passed =
+        accuracy >= lesson.minAccuracy &&
+        (!lesson.minWPM || wpm >= lesson.minWPM);
+
       if (passed) {
-        play('success')
-        completeLesson(lesson.id, wpm, accuracy)
-        showAchievementPopup(`${lesson.name} Completed!`)
+        play("success");
+        completeLesson(lesson.id, wpm, accuracy);
+        showAchievementPopup(`${lesson.name} Completed!`);
       } else {
-        play('error')
+        play("error");
       }
     }
-  }, [isComplete])
+  }, [isComplete]);
 
   useEffect(() => {
-    if (activeKey) play('key')
-    if (errorKey) play('error')
-  }, [activeKey, errorKey])
+    if (isActive && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isActive]);
 
   const handleStart = () => {
-    resetTyping()
-    resetTimer()
-    setIsActive(true)
-    setShowResults(false)
-  }
+    resetTyping();
+    resetTimer();
+    setIsActive(true);
+    setTimerStarted(false);
+    setShowResults(false);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
+  };
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      // only start if lesson is not already active and results are not showing
+      if (isActive || showResults) return;
+
+      // ignore modifier/navigation keys
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      // start on printable keys or Enter/Space to emulate Start button
+      if (e.key.length === 1 || e.key === "Enter" || e.key === " ") {
+        handleStart();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isActive, showResults, handleStart]);
 
   const handleRestart = () => {
-    handleStart()
-  }
+    handleStart();
+  };
 
-  const grade = getGrade(accuracy)
-  const passed = accuracy >= lesson.minAccuracy && (!lesson.minWPM || wpm >= lesson.minWPM)
+  const handleContinue = () => {
+    setShowResults(false);
+    if (onNextLesson) {
+      onNextLesson();
+    }
+  };
+
+  const grade = getGrade(accuracy);
+  const passed =
+    accuracy >= lesson.minAccuracy && (!lesson.minWPM || wpm >= lesson.minWPM);
 
   return (
     <div className="h-full flex flex-col">
       <div className="p-8 flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
           <div className="mb-6">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">{lesson.name}</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              {lesson.name}
+            </h2>
             <p className="text-gray-600">{levelName}</p>
           </div>
 
           <MetricsBar wpm={wpm} accuracy={accuracy} time={time} />
 
           <div className="my-8 p-8 bg-gray-50 rounded-xl border-2 border-gray-200 min-h-[200px] flex items-center justify-center">
-            <GhostText 
-              text={lesson.text} 
-              currentIndex={currentIndex} 
-              typedChars={typedChars}
-            />
+            <GhostText text={lesson.text} typedText={typedText} />
           </div>
 
-          <div className="flex gap-4">
+          {/* Hidden input for Amharic typing */}
+          <input
+            ref={inputRef}
+            id="typing-input-hidden"
+            type="text"
+            className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            disabled={!isActive}
+            placeholder={
+              isActive ? "Type here..." : "Click Start Lesson to begin"
+            }
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+
+          {/* Show hint when typing is complete */}
+          {isActive && typedText.length === lesson.text.length && (
+            <div className="mt-2 text-center text-green-600 font-semibold animate-pulse">
+              ✓ Complete! Press Enter to see results
+            </div>
+          )}
+
+          <div className="flex gap-4 mt-4">
             {!isActive && !showResults && (
               <Button onClick={handleStart}>Start Lesson</Button>
             )}
             {isActive && (
-              <Button variant="secondary" onClick={handleRestart}>Restart</Button>
+              <Button variant="secondary" onClick={handleRestart}>
+                Restart
+              </Button>
             )}
           </div>
         </div>
       </div>
 
-
-
       <Modal isOpen={showResults} onClose={() => setShowResults(false)}>
-        <h3 className="text-3xl font-bold text-center mb-6">Lesson Complete!</h3>
-        
+        <h3 className="text-3xl font-bold text-center mb-6">
+          Lesson Complete!
+        </h3>
+
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 bg-gray-100 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">WPM</p>
@@ -120,17 +192,41 @@ export const LessonPlayer = ({ lesson, levelName }) => {
           </div>
           <div className="text-center p-4 bg-gray-100 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Grade</p>
-            <p className={`text-2xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
+            <p
+              className={`text-2xl font-bold ${passed ? "text-green-600" : "text-red-600"}`}
+            >
               {grade}
             </p>
           </div>
         </div>
 
-        <div className="flex gap-4 justify-center">
-          {passed && <Button variant="success" onClick={() => setShowResults(false)}>Continue</Button>}
-          <Button variant="secondary" onClick={handleRestart}>Try Again</Button>
+        <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 max-w-md mx-auto text-center">
+          <div className="text-sm font-medium text-gray-700">Expected</div>
+          <div className="mt-2 flex justify-center gap-6 text-sm text-gray-600">
+            <div>
+              <div className="text-xs text-gray-500">WPM</div>
+              <div className="font-semibold">{lesson?.minWPM ?? "N/A"}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Accuracy</div>
+              <div className="font-semibold">
+                {lesson?.minAccuracy != null ? `${lesson.minAccuracy}%` : "N/A"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 flex gap-4 justify-center">
+          {passed && (
+            <Button variant="success" onClick={handleContinue}>
+              Continue
+            </Button>
+          )}
+          <Button variant="secondary" onClick={handleRestart}>
+            Try Again
+          </Button>
         </div>
       </Modal>
     </div>
-  )
-}
+  );
+};

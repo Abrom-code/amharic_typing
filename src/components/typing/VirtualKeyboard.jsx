@@ -10,7 +10,6 @@ const AMHARIC_KEYS = [
   ['የ', 'ዩ', 'ዪ', 'ያ', 'ዬ', 'ይ', 'ዮ'],
   ['ደ', 'ዱ', 'ዲ', 'ዳ', 'ዴ', 'ድ', 'ዶ'],
   ['ገ', 'ጉ', 'ጊ', 'ጋ', 'ጌ', 'ግ', 'ጎ'],
-  ['ጠ', 'ጡ', 'ጢ', 'ጣ', 'ጤ', 'ጥ', 'ጦ'],
   ['ፈ', 'ፉ', 'ፊ', 'ፋ', 'ፌ', 'ፍ', 'ፎ'],
   ['ለ', 'ሉ', 'ሊ', 'ላ', 'ሌ', 'ል', 'ሎ'],
   ['መ', 'ሙ', 'ሚ', 'ማ', 'ሜ', 'ም', 'ሞ'],
@@ -18,19 +17,17 @@ const AMHARIC_KEYS = [
   ['ሰ', 'ሱ', 'ሲ', 'ሳ', 'ሴ', 'ስ', 'ሶ'],
   ['ሸ', 'ሹ', 'ሺ', 'ሻ', 'ሼ', 'ሽ', 'ሾ'],
   ['ቸ', 'ቹ', 'ቺ', 'ቻ', 'ቼ', 'ች', 'ቾ'],
-  ['ኘ', 'ኙ', 'ኚ', 'ኛ', 'ኜ', 'ኝ', 'ኞ'],
-  ['ዠ', 'ዡ', 'ዢ', 'ዣ', 'ዤ', 'ዥ', 'ዦ'],
-  ['ጀ', 'ጁ', 'ጂ', 'ጃ', 'ጄ', 'ጅ', 'ጆ'],
-  ['ጨ', 'ጩ', 'ጪ', 'ጫ', 'ጬ', 'ጭ', 'ጮ'],
-  ['።', '፣', '፡', '፤', '፥', ' ']
+  ['።', '፣', '፡', ' ']
 ]
 
-export const VirtualKeyboard = ({ activeKey, errorKey }) => {
+export const VirtualKeyboard = ({ activeKey, errorKey, show = true }) => {
+  if (!show) return null
+
   return (
-    <div className="bg-gray-800 p-6 shadow-inner">
-      <div className="max-w-6xl mx-auto space-y-2">
+    <div className="bg-gray-800 py-3 px-4 shadow-inner">
+      <div className="max-w-4xl mx-auto space-y-1">
         {AMHARIC_KEYS.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex gap-2 justify-center">
+          <div key={rowIndex} className="flex gap-1 justify-center">
             {row.map((key, keyIndex) => {
               const isActive = activeKey === key
               const isError = errorKey === key
@@ -39,8 +36,8 @@ export const VirtualKeyboard = ({ activeKey, errorKey }) => {
                 <div
                   key={keyIndex}
                   className={`
-                    px-4 py-3 rounded font-amharic text-xl text-center min-w-[50px]
-                    transition-all duration-100 shadow-md
+                    px-2 py-1 rounded font-amharic text-sm text-center min-w-[35px]
+                    transition-all duration-100 shadow-sm
                     ${isActive ? 'bg-blue-500 text-white scale-110' : ''}
                     ${isError ? 'bg-red-500 text-white animate-shake' : ''}
                     ${!isActive && !isError ? 'bg-gray-100 text-gray-800' : ''}

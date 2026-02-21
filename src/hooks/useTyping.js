@@ -1,81 +1,134 @@
-import { useState, useEffect } from 'react'
-import { calculateWPM, calculateAccuracy } from '../utils/helpers'
+import { useState, useEffect } from "react";
+import { calculateWPM, calculateAccuracy } from "../utils/helpers";
 
-export const useTyping = (targetText, isActive) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [typedChars, setTypedChars] = useState([])
-  const [correctChars, setCorrectChars] = useState(0)
-  const [totalChars, setTotalChars] = useState(0)
-  const [wpm, setWpm] = useState(0)
-  const [accuracy, setAccuracy] = useState(100)
-  const [isComplete, setIsComplete] = useState(false)
-  const [activeKey, setActiveKey] = useState(null)
-  const [errorKey, setErrorKey] = useState(null)
+export const useTyping = (targetText, isActive, onFirstKey) => {
+  const [typedText, setTypedText] = useState("");
+  const [correctChars, setCorrectChars] = useState(0);
+  const [totalChars, setTotalChars] = useState(0);
+  const [wpm, setWpm] = useState(0);
+  const [accuracy, setAccuracy] = useState(100);
+  const [isComplete, setIsComplete] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
 
   useEffect(() => {
-    if (!isActive) return
+    if (!isActive) return;
 
-    const handleKeyPress = (e) => {
-      if (currentIndex >= targetText.length) return
+    const handleCompositionStart = () => {
+      setIsComposing(true);
+    };
 
-      const expectedChar = targetText[currentIndex]
-      const typedChar = e.key
+    const handleCompositionEnd = () => {
+      setIsComposing(false);
+    };
 
-      if (typedChar === expectedChar) {
-        setTypedChars([...typedChars, typedChar])
-        setCurrentIndex(currentIndex + 1)
-        setCorrectChars(correctChars + 1)
-        setTotalChars(totalChars + 1)
-        setActiveKey(typedChar)
-        setTimeout(() => setActiveKey(null), 100)
-
-        if (currentIndex + 1 === targetText.length) {
-          setIsComplete(true)
-        }
-      } else if (typedChar.length === 1) {
-        setTypedChars([...typedChars, typedChar])
-        setCurrentIndex(currentIndex + 1)
-        setTotalChars(totalChars + 1)
-        setErrorKey(expectedChar)
-        setTimeout(() => setErrorKey(null), 300)
+    const handleKeyDown = (e) => {
+      // Handle Enter key to finish lesson
+      if (e.key === "Enter" && typedText.length === targetText.length) {
+        setIsComplete(true);
       }
-    }
+    };
 
-    window.addEventListener('keypress', handleKeyPress)
-    return () => window.removeEventListener('keypress', handleKeyPress)
-  }, [isActive, currentIndex, targetText, typedChars, correctChars, totalChars])
+    const handleInput = (e) => {
+      // Get the input value
+      const input = e.target.value;
+
+      // Call onFirstKey on first character
+      if (input.length === 1 && typedText.length === 0 && onFirstKey) {
+        onFirstKey();
+      }
+
+      // Handle deletion
+      if (input.length < typedText.length) {
+        setTypedText(input);
+        return;
+      }
+
+      // Don't allow typing beyond target length
+      if (input.length > targetText.length) {
+        e.target.value = typedText;
+        return;
+      }
+
+      const newChar = input[input.length - 1];
+      const expectedChar = targetText[input.length - 1];
+
+      setTypedText(input);
+
+      // Only count completed characters (not during composition)
+      if (!isComposing && input.length > typedText.length) {
+        setTotalChars((prev) => prev + 1);
+
+        if (newChar === expectedChar) {
+          setCorrectChars((prev) => prev + 1);
+        }
+      }
+
+      // Check if complete - only when not composing
+      if (!isComposing && input.length === targetText.length) {
+        // Small delay to ensure composition is truly finished
+        setTimeout(() => {
+          if (e.target.value.length === targetText.length) {
+            setIsComplete(true);
+          }
+        }, 100);
+      }
+    };
+
+    // Find the hidden input and attach listeners
+    const inputElement = document.getElementById("typing-input-hidden");
+    if (inputElement) {
+      inputElement.addEventListener("compositionstart", handleCompositionStart);
+      inputElement.addEventListener("compositionend", handleCompositionEnd);
+      inputElement.addEventListener("keydown", handleKeyDown);
+      inputElement.addEventListener("input", handleInput);
+
+      return () => {
+        inputElement.removeEventListener(
+          "compositionstart",
+          handleCompositionStart,
+        );
+        inputElement.removeEventListener(
+          "compositionend",
+          handleCompositionEnd,
+        );
+        inputElement.removeEventListener("keydown", handleKeyDown);
+        inputElement.removeEventListener("input", handleInput);
+      };
+    }
+  }, [isActive, typedText, targetText, onFirstKey, isComposing]);
 
   useEffect(() => {
-    setAccuracy(calculateAccuracy(correctChars, totalChars))
-  }, [correctChars, totalChars])
+    setAccuracy(calculateAccuracy(correctChars, totalChars));
+  }, [correctChars, totalChars]);
 
   const updateWPM = (timeInSeconds) => {
-    setWpm(calculateWPM(correctChars, timeInSeconds))
-  }
+    setWpm(calculateWPM(correctChars, timeInSeconds));
+  };
 
   const reset = () => {
-    setCurrentIndex(0)
-    setTypedChars([])
-    setCorrectChars(0)
-    setTotalChars(0)
-    setWpm(0)
-    setAccuracy(100)
-    setIsComplete(false)
-    setActiveKey(null)
-    setErrorKey(null)
-  }
+    setTypedText("");
+    setCorrectChars(0);
+    setTotalChars(0);
+    setWpm(0);
+    setAccuracy(100);
+    setIsComplete(false);
+    setIsComposing(false);
+
+    // Clear the hidden input
+    const inputElement = document.getElementById("typing-input-hidden");
+    if (inputElement) {
+      inputElement.value = "";
+    }
+  };
 
   return {
-    currentIndex,
-    typedChars,
+    typedText,
     correctChars,
     totalChars,
     wpm,
     accuracy,
     isComplete,
-    activeKey,
-    errorKey,
     updateWPM,
-    reset
-  }
-}
+    reset,
+  };
+};
