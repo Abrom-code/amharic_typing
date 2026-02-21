@@ -1,0 +1,42 @@
+
+# Dependencies
+node_modules/
+
+# Production Build
+dist/
+build/
+
+# Vite
+.vite/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Vercel
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage
+coverage/
