@@ -209,33 +209,37 @@ export default function SpaceShooter() {
         )}
 
         {phase === 'menu' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-            <div className="text-center max-w-sm">
-              <div className="text-6xl mb-4">🚀</div>
-              <h2 className="text-3xl font-bold mb-2">Space Shooter</h2>
-              <p className="text-gray-400 text-sm mb-6">Enemy ships invade. Type their word to fire and destroy them.</p>
-              {best && <p className="text-cyan-400 text-sm mb-4">Best: Level {best.level} — {best.score?.toLocaleString()} pts</p>}
-              <button onClick={startGame} className="px-8 py-3 bg-indigo-700 hover:bg-indigo-600 rounded-xl font-bold text-lg transition">Launch</button>
+          <div className="absolute inset-0 overflow-y-auto bg-black/80">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <div className="text-center max-w-sm w-full">
+                <div className="text-6xl mb-4">🚀</div>
+                <h2 className="text-3xl font-bold mb-2">Space Shooter</h2>
+                <p className="text-gray-400 text-sm mb-6">Enemy ships invade. Type their word to fire and destroy them.</p>
+                {best && <p className="text-cyan-400 text-sm mb-4">Best: Level {best.level} — {best.score?.toLocaleString()} pts</p>}
+                <button onClick={startGame} className="px-8 py-3 bg-indigo-700 hover:bg-indigo-600 rounded-xl font-bold text-lg transition">Launch</button>
+              </div>
             </div>
           </div>
         )}
 
         {phase === 'over' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-            <div className="bg-gray-900 rounded-2xl p-8 max-w-sm w-full text-center border border-indigo-800">
-              <div className="text-5xl mb-3">💥</div>
-              <h2 className="text-2xl font-bold mb-5">Base Destroyed</h2>
-              <div className="grid grid-cols-3 gap-3 mb-5">
-                {[['Score', score.toLocaleString()], ['Level', level], ['Streak', streak]].map(([l, v]) => (
-                  <div key={l} className="bg-gray-800 rounded-xl p-3">
-                    <div className="text-xs text-gray-500 uppercase">{l}</div>
-                    <div className="text-xl font-bold">{v}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-3 justify-center">
-                <button onClick={startGame} className="px-6 py-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg font-semibold transition">Try Again</button>
-                <button onClick={() => navigate('/games')} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition">Back</button>
+          <div className="absolute inset-0 overflow-y-auto bg-black/90">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <div className="bg-gray-900 rounded-2xl p-8 max-w-sm w-full text-center border border-indigo-800">
+                <div className="text-5xl mb-3">💥</div>
+                <h2 className="text-2xl font-bold mb-5">Base Destroyed</h2>
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  {[['Score', score.toLocaleString()], ['Level', level], ['Streak', streak]].map(([l, v]) => (
+                    <div key={l} className="bg-gray-800 rounded-xl p-3">
+                      <div className="text-xs text-gray-500 uppercase">{l}</div>
+                      <div className="text-xl font-bold">{v}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3 justify-center">
+                  <button onClick={startGame} className="px-6 py-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg font-semibold transition">Try Again</button>
+                  <button onClick={() => navigate('/games')} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition">Back</button>
+                </div>
               </div>
             </div>
           </div>

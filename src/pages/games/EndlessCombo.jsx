@@ -127,7 +127,7 @@ export default function EndlessCombo() {
         {best && <span className="text-xs text-gray-500">Record: x{best.combo}</span>}
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6">
+      <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6 overflow-y-auto">
         {phase !== 'menu' && (
           <>
             {/* Timer bar */}

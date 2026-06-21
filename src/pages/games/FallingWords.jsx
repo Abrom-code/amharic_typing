@@ -231,38 +231,42 @@ export default function FallingWords() {
 
         {/* Menu */}
         {phase === 'menu' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-950/90">
-            <div className="text-center max-w-sm">
-              <div className="text-6xl mb-4">🌧️</div>
-              <h2 className="text-3xl font-bold mb-2">Falling Words</h2>
-              <p className="text-gray-400 text-sm mb-2">Words fall from the sky. Type them before they hit the ground.</p>
-              <p className="text-gray-500 text-xs mb-6">You have {MAX_LIVES} lives. Combos multiply your score.</p>
-              {best && <p className="text-yellow-400 text-sm mb-4">Best: {best.score?.toLocaleString()} pts</p>}
-              <button onClick={startGame} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-lg transition">
-                Start
-              </button>
+          <div className="absolute inset-0 overflow-y-auto bg-gray-950/95">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <div className="text-center max-w-sm w-full">
+                <div className="text-6xl mb-4">🌧️</div>
+                <h2 className="text-3xl font-bold mb-2">Falling Words</h2>
+                <p className="text-gray-400 text-sm mb-2">Words fall from the sky. Type them before they hit the ground.</p>
+                <p className="text-gray-500 text-xs mb-6">You have {MAX_LIVES} lives. Combos multiply your score.</p>
+                {best && <p className="text-yellow-400 text-sm mb-4">Best: {best.score?.toLocaleString()} pts</p>}
+                <button onClick={startGame} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-lg transition">
+                  Start
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* Game Over */}
         {phase === 'over' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-950/90">
-            <div className="bg-gray-900 rounded-2xl p-8 max-w-sm w-full text-center border border-gray-700">
-              <div className="text-5xl mb-4">💀</div>
-              <h2 className="text-2xl font-bold mb-6">Game Over</h2>
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {[['Score', score.toLocaleString()], ['Max Combo', `x${maxCombo}`], ['Time', `${elapsed}s`]].map(([l, v]) => (
-                  <div key={l} className="bg-gray-800 rounded-xl p-3">
-                    <div className="text-xs text-gray-500 uppercase">{l}</div>
-                    <div className="text-xl font-bold text-white">{v}</div>
-                  </div>
-                ))}
-              </div>
-              {best && score >= best.score && <p className="text-yellow-400 font-semibold mb-4">🏆 New Personal Best!</p>}
-              <div className="flex gap-3 justify-center">
-                <button onClick={startGame} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition">Play Again</button>
-                <button onClick={() => navigate('/games')} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition">Back</button>
+          <div className="absolute inset-0 overflow-y-auto bg-gray-950/95">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <div className="bg-gray-900 rounded-2xl p-8 max-w-sm w-full text-center border border-gray-700">
+                <div className="text-5xl mb-4">💀</div>
+                <h2 className="text-2xl font-bold mb-6">Game Over</h2>
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {[['Score', score.toLocaleString()], ['Max Combo', `x${maxCombo}`], ['Time', `${elapsed}s`]].map(([l, v]) => (
+                    <div key={l} className="bg-gray-800 rounded-xl p-3">
+                      <div className="text-xs text-gray-500 uppercase">{l}</div>
+                      <div className="text-xl font-bold text-white">{v}</div>
+                    </div>
+                  ))}
+                </div>
+                {best && score >= best.score && <p className="text-yellow-400 font-semibold mb-4">🏆 New Personal Best!</p>}
+                <div className="flex gap-3 justify-center">
+                  <button onClick={startGame} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition">Play Again</button>
+                  <button onClick={() => navigate('/games')} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition">Back</button>
+                </div>
               </div>
             </div>
           </div>
