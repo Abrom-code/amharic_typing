@@ -1,13 +1,21 @@
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { useApp } from '../../context/AppContext'
+import { useProgress } from '../../context/ProgressContext'
+import { COURSE_DATA } from '../../data/courseData'
 
 export const AppLayout = ({ children, onLessonSelect, currentLessonId }) => {
   const { showAchievement, achievementText } = useApp()
+  const { completedLessons } = useProgress()
+
+  const totalLessons = Object.values(COURSE_DATA).flat().length
+  const overallScore = totalLessons
+    ? Math.round((completedLessons.length / totalLessons) * 100)
+    : 0
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      <Header />
+      <Header overallScore={overallScore} />
       
       <div className="flex flex-1 overflow-hidden">
         <Sidebar onLessonSelect={onLessonSelect} currentLessonId={currentLessonId} />

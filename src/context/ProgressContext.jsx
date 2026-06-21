@@ -24,7 +24,7 @@ export const ProgressProvider = ({ children }) => {
     ["beginner"],
   );
 
-  const completeLesson = (lessonId, wpm, accuracy) => {
+  const completeLesson = (lessonId, wpm, accuracy, letterStats = null) => {
     // compute new completed lessons and high scores synchronously
     const newCompleted = completedLessons.includes(lessonId)
       ? completedLessons
@@ -54,7 +54,7 @@ export const ProgressProvider = ({ children }) => {
         wpm,
         accuracy,
         date: new Date().toISOString(),
-        letterStats: null,
+        letterStats: letterStats || null,
       };
 
       setSessions([...sessions, newSession]);

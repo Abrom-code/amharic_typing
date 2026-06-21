@@ -5,6 +5,7 @@ import { useSound } from "../hooks/useSound";
 import { useProgress } from "../context/ProgressContext";
 import { useApp } from "../context/AppContext";
 import { GhostText } from "../components/typing/GhostText";
+import { VirtualKeyboard } from "../components/typing/VirtualKeyboard";
 import { MetricsBar } from "../components/stats/MetricsBar";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
@@ -30,6 +31,9 @@ export const LessonPlayer = ({ lesson, levelName, onNextLesson }) => {
     wpm,
     accuracy,
     isComplete,
+    activeKey,
+    errorKey,
+    letterStats,
     updateWPM,
     reset: resetTyping,
   } = useTyping(lesson.text, isActive, handleFirstKey);
@@ -63,7 +67,7 @@ export const LessonPlayer = ({ lesson, levelName, onNextLesson }) => {
 
       if (passed) {
         play("success");
-        completeLesson(lesson.id, wpm, accuracy);
+        completeLesson(lesson.id, wpm, accuracy, letterStats);
         showAchievementPopup(`${lesson.name} Completed!`);
       } else {
         play("error");
@@ -175,6 +179,9 @@ export const LessonPlayer = ({ lesson, levelName, onNextLesson }) => {
           </div>
         </div>
       </div>
+
+      {/* Virtual Keyboard — always visible at the bottom */}
+      <VirtualKeyboard activeKey={activeKey} errorKey={errorKey} />
 
       <Modal isOpen={showResults} onClose={() => setShowResults(false)}>
         <h3 className="text-3xl font-bold text-center mb-6">

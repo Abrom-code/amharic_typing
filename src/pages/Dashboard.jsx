@@ -3,14 +3,17 @@ import { AppLayout } from '../components/layout/AppLayout'
 import { LessonPlayer } from './LessonPlayer'
 import { LEVEL_NAMES } from '../utils/constants'
 import { COURSE_DATA } from '../data/courseData'
+import { useApp } from '../context/AppContext'
 
 export const Dashboard = () => {
   const [selectedLesson, setSelectedLesson] = useState(null)
   const [selectedLevel, setSelectedLevel] = useState(null)
+  const { setCurrentLesson } = useApp()
 
   const handleLessonSelect = (lesson, level) => {
     setSelectedLesson(lesson)
     setSelectedLevel(level)
+    setCurrentLesson(lesson)
   }
 
   const handleNextLesson = () => {
@@ -23,6 +26,7 @@ export const Dashboard = () => {
     if (currentIndex < currentLevelLessons.length - 1) {
       const nextLesson = currentLevelLessons[currentIndex + 1]
       setSelectedLesson(nextLesson)
+      setCurrentLesson(nextLesson)
     } else {
       // Move to next level
       const levels = Object.keys(COURSE_DATA)
@@ -33,6 +37,7 @@ export const Dashboard = () => {
         const nextLesson = COURSE_DATA[nextLevel][0]
         setSelectedLevel(nextLevel)
         setSelectedLesson(nextLesson)
+        setCurrentLesson(nextLesson)
       }
     }
   }

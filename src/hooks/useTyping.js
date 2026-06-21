@@ -9,6 +9,10 @@ export const useTyping = (targetText, isActive, onFirstKey) => {
   const [accuracy, setAccuracy] = useState(100);
   const [isComplete, setIsComplete] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
+  const [activeKey, setActiveKey] = useState(null);
+  const [errorKey, setErrorKey] = useState(null);
+  // letterStats: { [char]: { correct: number, total: number } }
+  const [letterStats, setLetterStats] = useState({});
 
   useEffect(() => {
     if (!isActive) return;
@@ -58,8 +62,29 @@ export const useTyping = (targetText, isActive, onFirstKey) => {
       if (!isComposing && input.length > typedText.length) {
         setTotalChars((prev) => prev + 1);
 
+        // Track per-letter stats using the expected character as the key
+        setLetterStats((prev) => {
+          const entry = prev[expectedChar] || { correct: 0, total: 0 };
+          return {
+            ...prev,
+            [expectedChar]: {
+              correct: entry.correct + (newChar === expectedChar ? 1 : 0),
+              total: entry.total + 1,
+            },
+          };
+        });
+
         if (newChar === expectedChar) {
           setCorrectChars((prev) => prev + 1);
+          setActiveKey(newChar);
+          setErrorKey(null);
+          // Clear active key highlight after short delay
+          setTimeout(() => setActiveKey(null), 150);
+        } else {
+          setErrorKey(expectedChar);
+          setActiveKey(null);
+          // Clear error key highlight after shake animation
+          setTimeout(() => setErrorKey(null), 400);
         }
       }
 
@@ -113,6 +138,9 @@ export const useTyping = (targetText, isActive, onFirstKey) => {
     setAccuracy(100);
     setIsComplete(false);
     setIsComposing(false);
+    setActiveKey(null);
+    setErrorKey(null);
+    setLetterStats({});
 
     // Clear the hidden input
     const inputElement = document.getElementById("typing-input-hidden");
@@ -128,6 +156,9 @@ export const useTyping = (targetText, isActive, onFirstKey) => {
     wpm,
     accuracy,
     isComplete,
+    activeKey,
+    errorKey,
+    letterStats,
     updateWPM,
     reset,
   };

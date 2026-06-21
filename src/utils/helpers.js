@@ -23,12 +23,4 @@ export const formatTime = (seconds) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
-export const playSound = (soundName) => {
-  try {
-    const audio = new Audio(`/sounds/${soundName}.mp3`)
-    audio.volume = 0.3
-    audio.play().catch(() => {})
-  } catch (error) {
-    console.warn('Sound playback failed:', error)
-  }
-}
+
