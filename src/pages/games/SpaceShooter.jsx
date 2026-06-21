@@ -32,13 +32,13 @@ export default function SpaceShooter() {
 
   const [phase, setPhase] = useState('menu')
   const [enemies, setEnemies] = useState([])
-  const [typed, setTyped] = useState('')
   const [hp, setHp] = useState(MAX_HP)
   const [level, setLevel] = useState(1)
   const [score, setScore] = useState(0)
   const [streak, setStreak] = useState(0)
   const [levelMsg, setLevelMsg] = useState('')
-  const [missiles, setMissiles] = useState([]) // { id, x, y, targetId }
+  const [missiles, setMissiles] = useState([])
+  const [inputKey, setInputKey] = useState(0)
 
   const enemiesRef  = useRef([])
   const hpRef       = useRef(MAX_HP)
@@ -138,8 +138,8 @@ export default function SpaceShooter() {
       setTimeout(() => setMissiles(prev => prev.filter(m => m.id !== match.id)), 400)
       enemiesRef.current = enemiesRef.current.filter(en => en.id !== match.id)
       setEnemies([...enemiesRef.current])
-      // Clear input directly via ref
-      if (inputRef.current) inputRef.current.value = ''
+      // Remount input to reset Windows IME composition state
+      setInputKey(k => k + 1)
     }
   }
 
@@ -196,11 +196,13 @@ export default function SpaceShooter() {
         {phase === 'playing' && (
           <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/70 border-t border-indigo-900">
             <input
+              key={inputKey}
               ref={inputRef}
               type="text"
               className="w-full bg-indigo-950/80 text-white font-amharic text-xl px-4 py-2 rounded-lg border border-indigo-700 focus:border-cyan-500 focus:outline-none"
               placeholder="Type the enemy word to fire…"
               onChange={handleInput}
+              autoFocus
               autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
             />
           </div>

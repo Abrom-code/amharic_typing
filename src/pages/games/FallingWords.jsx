@@ -16,15 +16,16 @@ export default function FallingWords() {
   const navigate = useNavigate()
   const { saveGameScore, gameScores } = useProgress()
 
-  const [phase, setPhase] = useState('menu') // menu | playing | over
+  const [phase, setPhase] = useState('menu')
   const [words, setWords] = useState([])
-  const [typed, setTyped] = useState('')
   const [lives, setLives] = useState(MAX_LIVES)
   const [score, setScore] = useState(0)
   const [combo, setCombo] = useState(0)
   const [maxCombo, setMaxCombo] = useState(0)
-  const [flash, setFlash] = useState(null) // { id, text }
+  const [flash, setFlash] = useState(null)
   const [elapsed, setElapsed] = useState(0)
+  // Increment this to remount the <input> and reset IME state
+  const [inputKey, setInputKey] = useState(0)
 
   const wordsRef   = useRef([])
   const livesRef   = useRef(MAX_LIVES)
@@ -150,7 +151,6 @@ export default function FallingWords() {
 
   const handleInput = (e) => {
     const val = e.target.value
-    // Check if any word matches
     const match = wordsRef.current.find(w => w.text === val)
     if (match) {
       comboRef.current += 1
@@ -167,8 +167,8 @@ export default function FallingWords() {
       setTimeout(() => setFlash(null), 600)
       wordsRef.current = wordsRef.current.filter(w => w.id !== match.id)
       setWords([...wordsRef.current])
-      // Clear the input DOM value directly
-      if (inputRef.current) inputRef.current.value = ''
+      // Remount input to reset Windows IME composition state
+      setInputKey(k => k + 1)
     }
   }
 
@@ -217,11 +217,13 @@ export default function FallingWords() {
         {phase === 'playing' && (
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900/90 border-t border-gray-800">
             <input
+              key={inputKey}
               ref={inputRef}
               type="text"
               className="w-full bg-gray-800 text-white font-amharic text-xl px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
               placeholder="Type the falling words…"
               onChange={handleInput}
+              autoFocus
               autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
             />
           </div>

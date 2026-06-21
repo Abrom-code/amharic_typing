@@ -40,13 +40,13 @@ export default function ZombieSurvival() {
 
   const [phase, setPhase] = useState('menu')
   const [zombies, setZombies] = useState([])
-  const [typed, setTyped] = useState('')
   const [hp, setHp] = useState(MAX_HP)
   const [wave, setWave] = useState(1)
   const [score, setScore] = useState(0)
   const [combo, setCombo] = useState(0)
   const [waveMsg, setWaveMsg] = useState('')
-  const [powerUp, setPowerUp] = useState(null) // 'shield' | 'slow'
+  const [powerUp, setPowerUp] = useState(null)
+  const [inputKey, setInputKey] = useState(0)
 
   const zombiesRef = useRef([])
   const hpRef      = useRef(MAX_HP)
@@ -166,8 +166,8 @@ export default function ZombieSurvival() {
       setCombo(comboRef.current)
       zombiesRef.current = zombiesRef.current.filter(z => z.id !== match.id)
       setZombies([...zombiesRef.current])
-      // Clear input directly via ref
-      if (inputRef.current) inputRef.current.value = ''
+      // Remount input to reset Windows IME composition state
+      setInputKey(k => k + 1)
     }
   }
 
@@ -218,11 +218,13 @@ export default function ZombieSurvival() {
         {phase === 'playing' && (
           <div className="absolute bottom-0 left-0 right-0 p-3 bg-gray-900/90 border-t border-gray-800">
             <input
+              key={inputKey}
               ref={inputRef}
               type="text"
               className="w-full bg-gray-800 text-white font-amharic text-xl px-4 py-2 rounded-lg border border-gray-600 focus:border-green-500 focus:outline-none"
               placeholder="Type the zombie's word…"
               onChange={handleInput}
+              autoFocus
               autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
             />
           </div>
