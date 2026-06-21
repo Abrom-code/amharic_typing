@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
   const { isLessonCompleted } = useProgress();
-  const [expandedLevel, setExpandedLevel] = useState("beginner");
+  const [expandedLevel, setExpandedLevel] = useState(null);
   const navigate = useNavigate();
 
   const toggleLevel = (level) => {
