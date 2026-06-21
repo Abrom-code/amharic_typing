@@ -200,7 +200,7 @@ export default function GamesHub() {
   const wordProgress = typedText.trim().split(/\s+/).filter(Boolean).length
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-800 px-8 py-4 flex items-center gap-4 flex-shrink-0">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition">
