@@ -15,22 +15,32 @@ import { calculateWPM, calculateAccuracy, formatTime } from "../utils/helpers";
 
 // ─── word generators ─────────────────────────────────────────────────────────
 
-const pickWords = (n) => {
-  const pool = [...ARCADE_WORD_POOL];
-  const result = [];
-  while (result.length < n) {
-    result.push(...pool.sort(() => Math.random() - 0.5));
+/** Fisher-Yates shuffle — unbiased, truly random order every call */
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return result.slice(0, n).join(" ");
+  return a;
 };
 
-const generateTimeAttackText = () => {
-  const words = [];
-  while (words.length < 200) {
-    words.push(...[...ARCADE_WORD_POOL].sort(() => Math.random() - 0.5));
+/**
+ * Build a word list of exactly `n` words by cycling through shuffled
+ * copies of the pool — no two consecutive cycles are the same order.
+ */
+const buildWordList = (n) => {
+  const result = [];
+  while (result.length < n) {
+    result.push(...shuffle(ARCADE_WORD_POOL));
   }
-  return words.slice(0, 200).join(" ");
+  return result.slice(0, n);
 };
+
+const pickWords = (n) => buildWordList(n).join(' ');
+
+/** Time-attack needs ~200 words — fresh shuffle every game */
+const generateTimeAttackText = () => buildWordList(200).join(' ');
 
 // ─── small UI pieces ─────────────────────────────────────────────────────────
 
