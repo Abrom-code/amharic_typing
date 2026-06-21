@@ -4,7 +4,6 @@ import { ArrowLeft, Timer, Zap, Trophy, RotateCcw } from "lucide-react";
 import { useProgress } from "../context/ProgressContext";
 import { useSound } from "../hooks/useSound";
 import { GhostText } from "../components/typing/GhostText";
-import { VirtualKeyboard } from "../components/typing/VirtualKeyboard";
 import { Button } from "../components/ui/Button";
 import {
   GAME_MODES,
@@ -95,8 +94,6 @@ export const ArcadePage = () => {
   const [correctChars, setCorrectChars] = useState(0);
   const [totalChars, setTotalChars] = useState(0);
   const [isComposing, setIsComposing] = useState(false);
-  const [activeKey, setActiveKey] = useState(null);
-  const [errorKey, setErrorKey] = useState(null);
 
   // timer
   const [countdown, setCountdown] = useState(0); // counts DOWN for time attack
@@ -275,11 +272,6 @@ export const ArcadePage = () => {
         setTotalChars((p) => p + 1);
         if (newChar === expectedChar) {
           setCorrectChars((p) => p + 1);
-          setActiveKey(newChar);
-          setTimeout(() => setActiveKey(null), 150);
-        } else {
-          setErrorKey(expectedChar);
-          setTimeout(() => setErrorKey(null), 400);
         }
       }
 
@@ -448,8 +440,7 @@ export const ArcadePage = () => {
           )}
 
           {/* Main area */}
-          <div className="flex-1 overflow-y-auto p-8">
-            {phase === "config" && (
+          <div className="flex-1 overflow-y-auto p-8">            {phase === "config" && (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center max-w-md">
                   <div className="text-6xl mb-4">
@@ -528,10 +519,6 @@ export const ArcadePage = () => {
             )}
           </div>
 
-          {/* Virtual keyboard */}
-          {phase === "playing" && (
-            <VirtualKeyboard activeKey={activeKey} errorKey={errorKey} />
-          )}
         </div>
       </div>
     </div>
