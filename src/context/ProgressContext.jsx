@@ -18,27 +18,27 @@ export const ProgressProvider = ({ children }) => {
     STORAGE_KEYS.SESSION_HISTORY,
     [],
   );
+  // arcadeScores: { time_attack: { [seconds]: { wpm, accuracy, wordsTyped, date } }, word_sprint: { [count]: { time, accuracy, date } } }
+  const [arcadeScores, setArcadeScores] = useLocalStorage(
+    STORAGE_KEYS.ARCADE_SCORES,
+    {},
+  );
 
   const completeLesson = (lessonId, wpm, accuracy, letterStats = null) => {
-    // Update completed lessons
     const newCompleted = completedLessons.includes(lessonId)
       ? completedLessons
       : [...completedLessons, lessonId];
-
     setCompletedLessons(newCompleted);
 
-    // Update high scores if this attempt is better
     const currentScore = highScores[lessonId];
     const shouldUpdateScore =
       !currentScore ||
       wpm > currentScore.wpm ||
       accuracy > currentScore.accuracy;
-
     if (shouldUpdateScore) {
       setHighScores({ ...highScores, [lessonId]: { wpm, accuracy } });
     }
 
-    // Record the session
     try {
       const lesson = Object.values(COURSE_DATA)
         .flat()
@@ -57,6 +57,21 @@ export const ProgressProvider = ({ children }) => {
     }
   };
 
+  // Save an arcade game result. key is e.g. "60" for time_attack or "20" for word_sprint.
+  const saveArcadeScore = (mode, key, scoreData) => {
+    const modeScores = arcadeScores[mode] || {};
+    const existing = modeScores[key];
+    // Keep best score: for time_attack higher wpm wins; for word_sprint lower time wins
+    const isBetter = !existing ||
+      (mode === 'time_attack' ? scoreData.wpm > existing.wpm : scoreData.time < existing.time);
+    if (isBetter) {
+      setArcadeScores({
+        ...arcadeScores,
+        [mode]: { ...modeScores, [key]: { ...scoreData, date: new Date().toISOString() } },
+      });
+    }
+  };
+
   const isLessonCompleted = (lessonId) => completedLessons.includes(lessonId);
   const getLessonScore = (lessonId) => highScores[lessonId];
 
@@ -66,7 +81,9 @@ export const ProgressProvider = ({ children }) => {
         completedLessons,
         highScores,
         sessions,
+        arcadeScores,
         completeLesson,
+        saveArcadeScore,
         isLessonCompleted,
         getLessonScore,
       }}

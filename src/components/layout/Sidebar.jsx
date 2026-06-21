@@ -61,8 +61,11 @@ export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
             </div>
           );
         })}
-        <div className="mt-6">
-          <Button onClick={() => navigate("/stats")} className="w-full">
+        <div className="mt-6 flex flex-col gap-2">
+          <Button onClick={() => navigate("/arcade")} className="w-full" variant="primary">
+            🕹️ Arcade Mode
+          </Button>
+          <Button onClick={() => navigate("/stats")} className="w-full" variant="secondary">
             View Statistics
           </Button>
         </div>
