@@ -134,8 +134,7 @@ const buildDailySeries = (userHistory = [], days = 30) => {
 };
 
 export const StatisticsDashboard = () => {
-  const { completedLessons, unlockedLevels, sessions, highScores } =
-    useProgress();
+  const { completedLessons, sessions, highScores } = useProgress();
   const navigate = useNavigate();
   const stats = buildStats(sessions || []);
   const [viewMode, setViewMode] = useState("sessions");

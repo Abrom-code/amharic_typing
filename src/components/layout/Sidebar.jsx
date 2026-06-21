@@ -7,41 +7,33 @@ import { Button } from "../ui/Button";
 import { useNavigate } from "react-router-dom";
 
 export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
-  const { isLevelUnlocked, isLessonCompleted } = useProgress();
+  const { isLessonCompleted } = useProgress();
   const [expandedLevel, setExpandedLevel] = useState("beginner");
   const navigate = useNavigate();
 
   const toggleLevel = (level) => {
-    if (isLevelUnlocked(level)) {
-      setExpandedLevel(expandedLevel === level ? null : level);
-    }
+    setExpandedLevel(expandedLevel === level ? null : level);
   };
 
   return (
     <aside className="w-72 bg-gray-800 text-white overflow-y-auto">
       <div className="p-5">
         {Object.keys(COURSE_DATA).map((level) => {
-          const unlocked = isLevelUnlocked(level);
           const expanded = expandedLevel === level;
 
           return (
             <div key={level} className="mb-4">
               <div
                 onClick={() => toggleLevel(level)}
-                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
-                  unlocked
-                    ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-gray-900 opacity-50 cursor-not-allowed"
-                }`}
+                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all bg-gray-700 hover:bg-gray-600"
               >
                 <span className="text-2xl">{LEVEL_ICONS[level]}</span>
                 <h3 className="text-sm font-semibold flex-1">
                   {LEVEL_NAMES[level]}
                 </h3>
-                {!unlocked && <span className="text-xs">🔒</span>}
               </div>
 
-              {expanded && unlocked && (
+              {expanded && (
                 <div className="mt-2 space-y-1">
                   {COURSE_DATA[level].map((lesson) => {
                     const completed = isLessonCompleted(lesson.id);
