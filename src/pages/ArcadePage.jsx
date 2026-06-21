@@ -13,29 +13,26 @@ import {
 } from "../utils/constants";
 import { calculateWPM, calculateAccuracy, formatTime } from "../utils/helpers";
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+// ─── word generators ─────────────────────────────────────────────────────────
 
-/** Pick `n` random words from the pool, no repeats if pool is large enough */
 const pickWords = (n) => {
-  const shuffled = [...ARCADE_WORD_POOL].sort(() => Math.random() - 0.5);
+  const pool = [...ARCADE_WORD_POOL];
   const result = [];
   while (result.length < n) {
-    result.push(...shuffled);
+    result.push(...pool.sort(() => Math.random() - 0.5));
   }
   return result.slice(0, n).join(" ");
 };
 
-/** Generate a large text block for time-attack (enough chars for ~5 min at 60 WPM) */
 const generateTimeAttackText = () => {
   const words = [];
   while (words.length < 200) {
-    const shuffled = [...ARCADE_WORD_POOL].sort(() => Math.random() - 0.5);
-    words.push(...shuffled);
+    words.push(...[...ARCADE_WORD_POOL].sort(() => Math.random() - 0.5));
   }
   return words.slice(0, 200).join(" ");
 };
 
-// ─── sub-components ─────────────────────────────────────────────────────────
+// ─── small UI pieces ─────────────────────────────────────────────────────────
 
 const ModeCard = ({ icon, title, description, active, onClick }) => (
   <button
@@ -67,239 +64,234 @@ const OptionPill = ({ label, active, onClick }) => (
   </button>
 );
 
-const ScoreBadge = ({ label, value, sub }) => (
+const ScoreBadge = ({ label, value }) => (
   <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
     <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">{label}</div>
     <div className="text-3xl font-bold text-gray-800">{value}</div>
-    {sub && <div className="text-xs text-gray-400 mt-1">{sub}</div>}
   </div>
 );
 
-// ─── main component ──────────────────────────────────────────────────────────
+// ─── main component ───────────────────────────────────────────────────────────
 
 export const ArcadePage = () => {
   const navigate = useNavigate();
   const { play } = useSound();
   const { arcadeScores, saveArcadeScore } = useProgress();
 
-  // config
+  // ── config ──
   const [mode, setMode] = useState(GAME_MODES.TIME_ATTACK);
-  const [timeOption, setTimeOption] = useState(TIME_ATTACK_OPTIONS[1]); // 60s default
-  const [wordOption, setWordOption] = useState(WORD_SPRINT_OPTIONS[1]); // 20 words default
+  const [timeOption, setTimeOption] = useState(TIME_ATTACK_OPTIONS[1]); // 60s
+  const [wordOption, setWordOption] = useState(WORD_SPRINT_OPTIONS[1]); // 20 words
 
-  // game state
-  const [phase, setPhase] = useState("config"); // config | playing | results
+  // ── game phase ──
+  const [phase, setPhase] = useState("config"); // "config" | "playing" | "results"
+
+  // ── typing display state (drives re-render) ──
   const [targetText, setTargetText] = useState("");
   const [typedText, setTypedText] = useState("");
-  const [correctChars, setCorrectChars] = useState(0);
-  const [totalChars, setTotalChars] = useState(0);
-  const [isComposing, setIsComposing] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
 
-  // timer
-  const [countdown, setCountdown] = useState(0); // counts DOWN for time attack
-  const [elapsed, setElapsed] = useState(0);     // counts UP for word sprint
-  const [timerActive, setTimerActive] = useState(false);
-  const intervalRef = useRef(null);
-
-  // results
+  // ── result display state ──
   const [finalWPM, setFinalWPM] = useState(0);
   const [finalAccuracy, setFinalAccuracy] = useState(100);
-  const [wordsCompleted, setWordsCompleted] = useState(0);
+  const [finalWords, setFinalWords] = useState(0);
+  const [finalTime, setFinalTime] = useState(0);
+  const [isNewBest, setIsNewBest] = useState(false);
 
+  // ── refs for live values accessible inside closures without stale state ──
+  const correctRef = useRef(0);
+  const totalRef = useRef(0);
+  const typedRef = useRef("");
+  const elapsedRef = useRef(0);
+  const countdownRef = useRef(0);
+  const phaseRef = useRef("config");
+  const targetRef = useRef("");
+  const modeRef = useRef(mode);
+  const timeOptionRef = useRef(timeOption);
+  const wordOptionRef = useRef(wordOption);
+  const isComposingRef = useRef(false);
   const inputRef = useRef(null);
+  const intervalRef = useRef(null);
 
-  // ── reset typed state ──
-  const resetTyped = useCallback(() => {
-    setTypedText("");
-    setCorrectChars(0);
-    setTotalChars(0);
-    setActiveKey(null);
-    setErrorKey(null);
-    const el = document.getElementById("arcade-input");
-    if (el) el.value = "";
-  }, []);
+  // keep option refs in sync
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+  useEffect(() => { timeOptionRef.current = timeOption; }, [timeOption]);
+  useEffect(() => { wordOptionRef.current = wordOption; }, [wordOption]);
 
-  // ── stop timer ──
-  const stopTimer = useCallback(() => {
-    setTimerActive(false);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  }, []);
+  // ── end game ─────────────────────────────────────────────────────────────
+  const endGame = useCallback(() => {
+    if (phaseRef.current === "results") return; // already ended
+    phaseRef.current = "results";
 
-  // ── finish game ──
-  const finishGame = useCallback(
-    (overrideCorrect, overrideTotal, overrideElapsed, overrideTyped, targetRef) => {
-      stopTimer();
-      setPhase("results");
-      play("success");
+    clearInterval(intervalRef.current);
 
-      const cc = overrideCorrect ?? correctChars;
-      const tc = overrideTotal ?? totalChars;
-      const t = overrideElapsed ?? elapsed;
-      const typed = overrideTyped ?? typedText;
-      const target = targetRef ?? targetText;
+    const cc = correctRef.current;
+    const tc = totalRef.current;
+    const el = elapsedRef.current;
+    const cd = countdownRef.current;
+    const tt = typedRef.current;
+    const currentMode = modeRef.current;
+    const tOpt = timeOptionRef.current;
+    const wOpt = wordOptionRef.current;
 
-      const timeUsed = mode === GAME_MODES.TIME_ATTACK
-        ? (overrideElapsed != null ? overrideElapsed : timeOption.seconds - countdown)
-        : t;
+    const timeUsed = currentMode === GAME_MODES.TIME_ATTACK
+      ? tOpt.seconds - cd
+      : el;
 
-      const wpm = calculateWPM(cc, Math.max(timeUsed, 1));
-      const acc = calculateAccuracy(cc, tc);
-      const words = typed.trim().split(/\s+/).filter(Boolean).length;
+    const wpm = calculateWPM(cc, Math.max(timeUsed, 1));
+    const acc = calculateAccuracy(cc, tc);
+    const words = tt.trim().split(/\s+/).filter(Boolean).length;
 
-      setFinalWPM(wpm);
-      setFinalAccuracy(acc);
-      setWordsCompleted(words);
+    setFinalWPM(wpm);
+    setFinalAccuracy(acc);
+    setFinalWords(words);
+    setFinalTime(el);
+    setPhase("results");
+    play("success");
 
-      if (mode === GAME_MODES.TIME_ATTACK) {
-        saveArcadeScore(GAME_MODES.TIME_ATTACK, String(timeOption.seconds), {
-          wpm, accuracy: acc, wordsTyped: words,
-        });
-      } else {
-        saveArcadeScore(GAME_MODES.WORD_SPRINT, String(wordOption.count), {
-          time: t, accuracy: acc, wpm,
-        });
-      }
-    },
-    [correctChars, totalChars, elapsed, typedText, targetText, countdown,
-     mode, timeOption, wordOption, play, saveArcadeScore, stopTimer],
-  );
+    // persist best score
+    const key = currentMode === GAME_MODES.TIME_ATTACK
+      ? String(tOpt.seconds)
+      : String(wOpt.count);
 
-  // ── timer tick ──
-  useEffect(() => {
-    if (!timerActive) return;
+    const existing = (arcadeScores[currentMode] || {})[key];
+    const better = !existing ||
+      (currentMode === GAME_MODES.TIME_ATTACK ? wpm > existing.wpm : el < existing.time);
 
-    intervalRef.current = setInterval(() => {
-      if (mode === GAME_MODES.TIME_ATTACK) {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            // time's up — finish with current state
-            clearInterval(intervalRef.current);
-            setTimerActive(false);
-            setPhase("results");
-            play("success");
-            // Use functional form to get latest state in closure
-            setCorrectChars((cc) => {
-              setTotalChars((tc) => {
-                setElapsed((el) => {
-                  setTypedText((tt) => {
-                    const timeUsed = timeOption.seconds;
-                    const wpm = calculateWPM(cc, timeUsed);
-                    const acc = calculateAccuracy(cc, tc);
-                    const words = tt.trim().split(/\s+/).filter(Boolean).length;
-                    setFinalWPM(wpm);
-                    setFinalAccuracy(acc);
-                    setWordsCompleted(words);
-                    saveArcadeScore(GAME_MODES.TIME_ATTACK, String(timeOption.seconds), {
-                      wpm, accuracy: acc, wordsTyped: words,
-                    });
-                    return tt;
-                  });
-                  return el;
-                });
-                return tc;
-              });
-              return cc;
-            });
-            return 0;
-          }
-          return prev - 1;
-        });
-      } else {
-        setElapsed((prev) => prev + 1);
-      }
-    }, 1000);
+    setIsNewBest(better);
 
-    return () => clearInterval(intervalRef.current);
-  }, [timerActive, mode, timeOption, play, saveArcadeScore]);
-
-  // ── start game ──
-  const startGame = () => {
-    let text;
-    if (mode === GAME_MODES.TIME_ATTACK) {
-      text = generateTimeAttackText();
-      setCountdown(timeOption.seconds);
-      setElapsed(0);
+    if (currentMode === GAME_MODES.TIME_ATTACK) {
+      saveArcadeScore(currentMode, key, { wpm, accuracy: acc, wordsTyped: words });
     } else {
-      text = pickWords(wordOption.count);
-      setElapsed(0);
-      setCountdown(0);
+      saveArcadeScore(currentMode, key, { time: el, accuracy: acc, wpm });
     }
+  }, [play, arcadeScores, saveArcadeScore]);
+
+  // ── start game ───────────────────────────────────────────────────────────
+  const startGame = useCallback(() => {
+    clearInterval(intervalRef.current);
+
+    const currentMode = modeRef.current;
+    const tOpt = timeOptionRef.current;
+    const wOpt = wordOptionRef.current;
+
+    const text = currentMode === GAME_MODES.TIME_ATTACK
+      ? generateTimeAttackText()
+      : pickWords(wOpt.count);
+
+    // reset refs
+    correctRef.current = 0;
+    totalRef.current = 0;
+    typedRef.current = "";
+    elapsedRef.current = 0;
+    countdownRef.current = currentMode === GAME_MODES.TIME_ATTACK ? tOpt.seconds : 0;
+    phaseRef.current = "playing";
+    targetRef.current = text;
+
+    // reset display state
     setTargetText(text);
-    resetTyped();
-    setPhase("playing");
-    setTimerActive(false); // timer starts on first keypress
+    setTypedText("");
+    setCountdown(currentMode === GAME_MODES.TIME_ATTACK ? tOpt.seconds : 0);
+    setElapsed(0);
     setFinalWPM(0);
     setFinalAccuracy(100);
-    setWordsCompleted(0);
-    setTimeout(() => inputRef.current?.focus(), 80);
-  };
+    setFinalWords(0);
+    setFinalTime(0);
+    setIsNewBest(false);
+    setPhase("playing");
 
-  // ── input handling ──
+    // clear input DOM value
+    setTimeout(() => {
+      const el = document.getElementById("arcade-input");
+      if (el) { el.value = ""; el.focus(); }
+    }, 50);
+  }, []);
+
+  // ── timer: starts when phase becomes "playing", first tick on keypress ──
+  // We use a separate "timerStarted" ref so the interval only starts after the first key
+  const timerStartedRef = useRef(false);
+
+  // Clean up interval whenever phase changes away from playing
+  useEffect(() => {
+    if (phase !== "playing") {
+      clearInterval(intervalRef.current);
+      timerStartedRef.current = false;
+    }
+  }, [phase]);
+
+  // ── input event handler — attached/detached when phase changes ───────────
   useEffect(() => {
     if (phase !== "playing") return;
 
     const el = document.getElementById("arcade-input");
     if (!el) return;
 
-    const onCompositionStart = () => setIsComposing(true);
-    const onCompositionEnd = () => setIsComposing(false);
+    const onCompositionStart = () => { isComposingRef.current = true; };
+    const onCompositionEnd   = () => { isComposingRef.current = false; };
 
     const onInput = (e) => {
-      const input = e.target.value;
+      if (phaseRef.current !== "playing") return;
 
-      // Start timer on first character
-      if (input.length === 1 && typedText.length === 0) {
-        setTimerActive(true);
+      const input = e.target.value;
+      const prev = typedRef.current;
+      const target = targetRef.current;
+
+      // Start the interval timer on the very first character
+      if (input.length === 1 && prev.length === 0 && !timerStartedRef.current) {
+        timerStartedRef.current = true;
+
+        intervalRef.current = setInterval(() => {
+          if (modeRef.current === GAME_MODES.TIME_ATTACK) {
+            countdownRef.current -= 1;
+            setCountdown(countdownRef.current);
+
+            if (countdownRef.current <= 0) {
+              clearInterval(intervalRef.current);
+              endGame();
+            }
+          } else {
+            elapsedRef.current += 1;
+            setElapsed(elapsedRef.current);
+          }
+        }, 1000);
       }
 
-      // Allow deletion freely
-      if (input.length < typedText.length) {
+      // Deletion — just update
+      if (input.length < prev.length) {
+        typedRef.current = input;
         setTypedText(input);
         return;
       }
 
-      // Don't allow typing past target
-      if (input.length > targetText.length) {
-        e.target.value = typedText;
+      // Block typing past target
+      if (input.length > target.length) {
+        e.target.value = prev;
         return;
       }
 
       const newChar = input[input.length - 1];
-      const expectedChar = targetText[input.length - 1];
+      const expectedChar = target[input.length - 1];
+
+      typedRef.current = input;
       setTypedText(input);
 
-      if (!isComposing && input.length > typedText.length) {
-        setTotalChars((p) => p + 1);
+      if (!isComposingRef.current && input.length > prev.length) {
+        totalRef.current += 1;
         if (newChar === expectedChar) {
-          setCorrectChars((p) => p + 1);
+          correctRef.current += 1;
         }
       }
 
-      // Word Sprint: finish when all words typed
-      if (mode === GAME_MODES.WORD_SPRINT && input.length === targetText.length) {
+      // Word Sprint completion
+      if (
+        modeRef.current === GAME_MODES.WORD_SPRINT &&
+        input.length === target.length &&
+        !isComposingRef.current
+      ) {
         setTimeout(() => {
-          if (document.getElementById("arcade-input")?.value.length === targetText.length) {
-            setElapsed((el) => {
-              setCorrectChars((cc) => {
-                setTotalChars((tc) => {
-                  const wpm = calculateWPM(cc, Math.max(el, 1));
-                  const acc = calculateAccuracy(cc, tc);
-                  const words = wordOption.count;
-                  setFinalWPM(wpm);
-                  setFinalAccuracy(acc);
-                  setWordsCompleted(words);
-                  saveArcadeScore(GAME_MODES.WORD_SPRINT, String(wordOption.count), {
-                    time: el, accuracy: acc, wpm,
-                  });
-                  return tc;
-                });
-                return cc;
-              });
-              return el;
-            });
-            stopTimer();
-            setPhase("results");
-            play("success");
+          if (document.getElementById("arcade-input")?.value.length === target.length) {
+            endGame();
           }
         }, 100);
       }
@@ -308,32 +300,35 @@ export const ArcadePage = () => {
     el.addEventListener("compositionstart", onCompositionStart);
     el.addEventListener("compositionend", onCompositionEnd);
     el.addEventListener("input", onInput);
+
     return () => {
       el.removeEventListener("compositionstart", onCompositionStart);
       el.removeEventListener("compositionend", onCompositionEnd);
       el.removeEventListener("input", onInput);
     };
-  }, [phase, typedText, targetText, isComposing, mode, wordOption, stopTimer, play, saveArcadeScore]);
+  }, [phase, endGame]);
 
-  // ── render helpers ──
+  // ── derived display values ────────────────────────────────────────────────
   const bestScore = arcadeScores[mode]?.[
-    mode === GAME_MODES.TIME_ATTACK
-      ? String(timeOption.seconds)
-      : String(wordOption.count)
+    mode === GAME_MODES.TIME_ATTACK ? String(timeOption.seconds) : String(wordOption.count)
   ];
 
   const timerDisplay = mode === GAME_MODES.TIME_ATTACK
     ? formatTime(countdown)
     : formatTime(elapsed);
 
-  const timerColor = mode === GAME_MODES.TIME_ATTACK && countdown <= 10
-    ? "text-red-600 animate-pulse"
-    : "text-gray-800";
+  const timerColor =
+    mode === GAME_MODES.TIME_ATTACK && countdown > 0 && countdown <= 10
+      ? "text-red-600 animate-pulse"
+      : "text-gray-800";
 
+  const wordProgress = typedText.trim().split(/\s+/).filter(Boolean).length;
+
+  // ── render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-700 text-white px-8 py-4 shadow-lg flex items-center gap-4">
+      <div className="bg-gradient-to-r from-purple-900 to-indigo-700 text-white px-8 py-4 shadow-lg flex items-center gap-4 flex-shrink-0">
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-2 text-purple-200 hover:text-white transition"
@@ -347,8 +342,8 @@ export const ArcadePage = () => {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left panel — config */}
-        <div className="w-72 bg-white border-r border-gray-200 p-6 overflow-y-auto flex flex-col gap-6">
+        {/* ── Left config panel ── */}
+        <div className="w-72 bg-white border-r border-gray-200 p-6 overflow-y-auto flex-shrink-0 flex flex-col gap-6">
           <div>
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Game Mode</h2>
             <div className="flex flex-col gap-3">
@@ -369,7 +364,6 @@ export const ArcadePage = () => {
             </div>
           </div>
 
-          {/* Options */}
           <div>
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
               {mode === GAME_MODES.TIME_ATTACK ? "Duration" : "Word Count"}
@@ -395,7 +389,6 @@ export const ArcadePage = () => {
             </div>
           </div>
 
-          {/* Best score for current config */}
           {bestScore && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
               <div className="flex items-center gap-2 text-yellow-700 font-bold text-sm mb-2">
@@ -410,11 +403,12 @@ export const ArcadePage = () => {
           )}
         </div>
 
-        {/* Right panel — game area */}
+        {/* ── Right game area ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Timer bar */}
+
+          {/* Timer bar — only during playing */}
           {phase === "playing" && (
-            <div className="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between">
+            <div className="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Timer className="w-5 h-5 text-gray-500" />
@@ -422,25 +416,32 @@ export const ArcadePage = () => {
                     {timerDisplay}
                   </span>
                 </div>
-                {mode === GAME_MODES.WORD_SPRINT && (
-                  <div className="text-sm text-gray-500">
-                    {typedText.trim().split(/\s+/).filter(Boolean).length} / {wordOption.count} words
-                  </div>
-                )}
-                {mode === GAME_MODES.TIME_ATTACK && (
-                  <div className="text-sm text-gray-500">
-                    {typedText.trim().split(/\s+/).filter(Boolean).length} words typed
-                  </div>
-                )}
+                <div className="text-sm text-gray-500">
+                  {mode === GAME_MODES.WORD_SPRINT
+                    ? `${wordProgress} / ${wordOption.count} words`
+                    : `${wordProgress} words typed`}
+                </div>
               </div>
-              <Button variant="secondary" onClick={() => { stopTimer(); setPhase("config"); resetTyped(); }}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  clearInterval(intervalRef.current);
+                  phaseRef.current = "config";
+                  setPhase("config");
+                  setTypedText("");
+                  typedRef.current = "";
+                }}
+              >
                 <RotateCcw className="w-4 h-4 inline mr-1" /> Quit
               </Button>
             </div>
           )}
 
-          {/* Main area */}
-          <div className="flex-1 overflow-y-auto p-8">            {phase === "config" && (
+          {/* Main content */}
+          <div className="flex-1 overflow-y-auto p-8">
+
+            {/* Config screen */}
+            {phase === "config" && (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center max-w-md">
                   <div className="text-6xl mb-4">
@@ -462,8 +463,9 @@ export const ArcadePage = () => {
               </div>
             )}
 
+            {/* Playing screen */}
             {phase === "playing" && (
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-4xl mx-auto flex flex-col gap-4">
                 <div className="h-52 overflow-y-auto p-5 bg-white rounded-xl border-2 border-gray-200">
                   <GhostText text={targetText} typedText={typedText} />
                 </div>
@@ -471,8 +473,8 @@ export const ArcadePage = () => {
                   ref={inputRef}
                   id="arcade-input"
                   type="text"
-                  className="mt-4 w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
-                  placeholder="Type here..."
+                  className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                  placeholder="Type here… timer starts on first keystroke"
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="off"
@@ -481,6 +483,7 @@ export const ArcadePage = () => {
               </div>
             )}
 
+            {/* Results screen */}
             {phase === "results" && (
               <div className="h-full flex items-center justify-center">
                 <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full">
@@ -498,18 +501,17 @@ export const ArcadePage = () => {
                     <ScoreBadge label="Accuracy" value={`${finalAccuracy}%`} />
                     <ScoreBadge
                       label={mode === GAME_MODES.TIME_ATTACK ? "Words" : "Time"}
-                      value={mode === GAME_MODES.TIME_ATTACK ? wordsCompleted : formatTime(elapsed)}
+                      value={mode === GAME_MODES.TIME_ATTACK ? finalWords : formatTime(finalTime)}
                     />
                   </div>
 
-                  {/* Personal best indicator */}
-                  {bestScore && finalWPM >= bestScore.wpm && (
+                  {isNewBest && (
                     <div className="mb-4 text-center text-yellow-600 font-semibold flex items-center justify-center gap-2">
                       <Trophy className="w-5 h-5" /> New Personal Best!
                     </div>
                   )}
 
-                  <div className="flex gap-3 justify-center">
+                  <div className="flex gap-3 justify-center flex-wrap">
                     <Button onClick={startGame}>Play Again</Button>
                     <Button variant="secondary" onClick={() => setPhase("config")}>Change Mode</Button>
                     <Button variant="secondary" onClick={() => navigate("/")}>Back to Lessons</Button>
@@ -518,7 +520,6 @@ export const ArcadePage = () => {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>
