@@ -125,55 +125,53 @@ export const LessonPlayer = ({ lesson, levelName, onNextLesson }) => {
     accuracy >= lesson.minAccuracy && (!lesson.minWPM || wpm >= lesson.minWPM);
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-8 flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
-              {lesson.name}
-            </h2>
-            <p className="text-gray-600">{levelName}</p>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* ── Top: lesson title + metrics ── */}
+      <div className="px-8 pt-6 pb-3 flex-shrink-0 max-w-5xl w-full mx-auto">
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">{lesson.name}</h2>
+          <p className="text-sm text-gray-500">{levelName}</p>
+        </div>
+        <MetricsBar wpm={wpm} accuracy={accuracy} time={time} />
+      </div>
+
+      {/* ── Middle: fixed-height scrollable ghost text box ── */}
+      <div className="px-8 flex-shrink-0 max-w-5xl w-full mx-auto">
+        <div className="h-52 overflow-y-auto p-5 bg-gray-50 rounded-xl border-2 border-gray-200">
+          <GhostText text={lesson.text} typedText={typedText} />
+        </div>
+      </div>
+
+      {/* ── Bottom: input + controls — always visible ── */}
+      <div className="px-8 pt-4 pb-6 flex-shrink-0 max-w-5xl w-full mx-auto">
+        <input
+          ref={inputRef}
+          id="typing-input-hidden"
+          type="text"
+          className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+          disabled={!isActive}
+          placeholder={isActive ? "Type here..." : "Press any key or click Start to begin"}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+        />
+
+        {isActive && typedText.length === lesson.text.length && (
+          <div className="mt-2 text-center text-green-600 font-semibold animate-pulse">
+            ✓ Complete! Press Enter to see results
           </div>
+        )}
 
-          <MetricsBar wpm={wpm} accuracy={accuracy} time={time} />
-
-          <div className="my-8 p-8 bg-gray-50 rounded-xl border-2 border-gray-200 min-h-[200px] flex items-center justify-center">
-            <GhostText text={lesson.text} typedText={typedText} />
-          </div>
-
-          {/* Hidden input for Amharic typing */}
-          <input
-            ref={inputRef}
-            id="typing-input-hidden"
-            type="text"
-            className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            disabled={!isActive}
-            placeholder={
-              isActive ? "Type here..." : "Click Start Lesson to begin"
-            }
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck="false"
-          />
-
-          {/* Show hint when typing is complete */}
-          {isActive && typedText.length === lesson.text.length && (
-            <div className="mt-2 text-center text-green-600 font-semibold animate-pulse">
-              ✓ Complete! Press Enter to see results
-            </div>
+        <div className="flex gap-4 mt-4">
+          {!isActive && !showResults && (
+            <Button onClick={handleStart}>Start Lesson</Button>
           )}
-
-          <div className="flex gap-4 mt-4">
-            {!isActive && !showResults && (
-              <Button onClick={handleStart}>Start Lesson</Button>
-            )}
-            {isActive && (
-              <Button variant="secondary" onClick={handleRestart}>
-                Restart
-              </Button>
-            )}
-          </div>
+          {isActive && (
+            <Button variant="secondary" onClick={handleRestart}>
+              Restart
+            </Button>
+          )}
         </div>
       </div>
 

@@ -464,7 +464,7 @@ export const ArcadePage = () => {
 
             {phase === "playing" && (
               <div className="max-w-4xl mx-auto">
-                <div className="p-8 bg-white rounded-xl border-2 border-gray-200 min-h-[200px] flex items-start">
+                <div className="h-52 overflow-y-auto p-5 bg-white rounded-xl border-2 border-gray-200">
                   <GhostText text={targetText} typedText={typedText} />
                 </div>
                 <input
