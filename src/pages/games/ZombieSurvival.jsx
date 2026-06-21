@@ -142,20 +142,21 @@ export default function ZombieSurvival() {
     waveMaxRef.current = WAVE_SIZE(1)
     shieldRef.current = false
     phaseRef.current = 'playing'
-    setZombies([]); setHp(MAX_HP); setScore(0); setCombo(0); setWave(1); setTyped(''); setPowerUp(null)
+    setZombies([]); setHp(MAX_HP); setScore(0); setCombo(0); setWave(1); setPowerUp(null)
     setPhase('playing')
     setWaveMsg('Wave 1!')
     setTimeout(() => setWaveMsg(''), 1500)
     clearInterval(tickRef.current)
     tickRef.current = setInterval(tick, TICK)
-    setTimeout(() => inputRef.current?.focus(), 80)
+    setTimeout(() => {
+      if (inputRef.current) { inputRef.current.value = ''; inputRef.current.focus() }
+    }, 80)
   }, [tick])
 
   useEffect(() => () => clearInterval(tickRef.current), [])
 
   const handleInput = (e) => {
     const val = e.target.value
-    setTyped(val)
     const match = zombiesRef.current.find(z => z.word === val)
     if (match) {
       comboRef.current++
@@ -165,7 +166,8 @@ export default function ZombieSurvival() {
       setCombo(comboRef.current)
       zombiesRef.current = zombiesRef.current.filter(z => z.id !== match.id)
       setZombies([...zombiesRef.current])
-      setTyped(''); e.target.value = ''
+      // Clear input directly via ref
+      if (inputRef.current) inputRef.current.value = ''
     }
   }
 

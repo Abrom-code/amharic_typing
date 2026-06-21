@@ -111,20 +111,21 @@ export default function SpaceShooter() {
     hpRef.current = MAX_HP; scoreRef.current = 0; streakRef.current = 0
     levelRef.current = 1; spawnedRef.current = 0; levelMaxRef.current = LEVEL_ENEMIES(1)
     phaseRef.current = 'playing'
-    setEnemies([]); setHp(MAX_HP); setScore(0); setStreak(0); setLevel(1); setTyped(''); setMissiles([])
+    setEnemies([]); setHp(MAX_HP); setScore(0); setStreak(0); setLevel(1); setMissiles([])
     setPhase('playing')
     setLevelMsg('Level 1!')
     setTimeout(() => setLevelMsg(''), 1500)
     clearInterval(tickRef.current)
     tickRef.current = setInterval(tick, TICK)
-    setTimeout(() => inputRef.current?.focus(), 80)
+    setTimeout(() => {
+      if (inputRef.current) { inputRef.current.value = ''; inputRef.current.focus() }
+    }, 80)
   }, [tick])
 
   useEffect(() => () => clearInterval(tickRef.current), [])
 
   const handleInput = (e) => {
     const val = e.target.value
-    setTyped(val)
     const match = enemiesRef.current.find(en => en.word === val)
     if (match) {
       streakRef.current++
@@ -133,12 +134,12 @@ export default function SpaceShooter() {
       scoreRef.current += pts
       setScore(scoreRef.current)
       setStreak(streakRef.current)
-      // show missile animation
       setMissiles(prev => [...prev, { id: match.id, x: match.x, y: match.y }])
       setTimeout(() => setMissiles(prev => prev.filter(m => m.id !== match.id)), 400)
       enemiesRef.current = enemiesRef.current.filter(en => en.id !== match.id)
       setEnemies([...enemiesRef.current])
-      setTyped(''); e.target.value = ''
+      // Clear input directly via ref
+      if (inputRef.current) inputRef.current.value = ''
     }
   }
 

@@ -118,7 +118,6 @@ export default function FallingWords() {
     setCombo(0)
     setMaxCombo(0)
     setElapsed(0)
-    setTyped('')
     setPhase('playing')
 
     clearInterval(tickRef.current)
@@ -137,7 +136,9 @@ export default function FallingWords() {
     }
     startSpawn()
 
-    setTimeout(() => inputRef.current?.focus(), 80)
+    setTimeout(() => {
+      if (inputRef.current) { inputRef.current.value = ''; inputRef.current.focus() }
+    }, 80)
   }, [tick, spawnWord])
 
   useEffect(() => {
@@ -149,8 +150,6 @@ export default function FallingWords() {
 
   const handleInput = (e) => {
     const val = e.target.value
-    setTyped(val)
-
     // Check if any word matches
     const match = wordsRef.current.find(w => w.text === val)
     if (match) {
@@ -168,8 +167,8 @@ export default function FallingWords() {
       setTimeout(() => setFlash(null), 600)
       wordsRef.current = wordsRef.current.filter(w => w.id !== match.id)
       setWords([...wordsRef.current])
-      setTyped('')
-      e.target.value = ''
+      // Clear the input DOM value directly
+      if (inputRef.current) inputRef.current.value = ''
     }
   }
 
