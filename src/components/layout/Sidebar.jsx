@@ -16,7 +16,7 @@ export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
   };
 
   return (
-    <aside className="w-72 bg-gray-800 text-white overflow-y-auto">
+    <aside className="w-72 bg-gray-800 dark:bg-gray-950 text-white overflow-y-auto flex-shrink-0">
       <div className="p-5">
         {Object.keys(COURSE_DATA).map((level) => {
           const expanded = expandedLevel === level;
@@ -25,12 +25,11 @@ export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
             <div key={level} className="mb-4">
               <div
                 onClick={() => toggleLevel(level)}
-                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all bg-gray-700 hover:bg-gray-600"
+                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
               >
                 <span className="text-2xl">{LEVEL_ICONS[level]}</span>
-                <h3 className="text-sm font-semibold flex-1">
-                  {LEVEL_NAMES[level]}
-                </h3>
+                <h3 className="text-sm font-semibold flex-1">{LEVEL_NAMES[level]}</h3>
+                <span className="text-gray-400 text-xs">{expanded ? '▲' : '▼'}</span>
               </div>
 
               {expanded && (
@@ -46,7 +45,7 @@ export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
                         className={`pl-12 pr-3 py-2 text-sm cursor-pointer transition-all rounded ${
                           active
                             ? "bg-blue-600 font-semibold"
-                            : "hover:bg-gray-700"
+                            : "hover:bg-gray-700 dark:hover:bg-gray-800"
                         }`}
                       >
                         <div className="flex justify-between items-center">
@@ -61,6 +60,7 @@ export const Sidebar = ({ onLessonSelect, currentLessonId }) => {
             </div>
           );
         })}
+
         <div className="mt-6 flex flex-col gap-2">
           <Button onClick={() => navigate("/arcade")} className="w-full" variant="primary">
             🕹️ Arcade Mode

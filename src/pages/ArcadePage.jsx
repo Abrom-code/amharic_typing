@@ -49,15 +49,15 @@ const ModeCard = ({ icon, title, description, active, onClick }) => (
     onClick={onClick}
     className={`w-full text-left p-5 rounded-xl border-2 transition-all ${
       active
-        ? "border-blue-500 bg-blue-50"
-        : "border-gray-200 bg-white hover:border-blue-300 hover:bg-gray-50"
+        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
+        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-gray-50 dark:hover:bg-gray-700"
     }`}
   >
     <div className="flex items-center gap-3 mb-2">
       <span className="text-2xl">{icon}</span>
-      <span className="font-bold text-gray-800 text-lg">{title}</span>
+      <span className="font-bold text-gray-800 dark:text-gray-100 text-lg">{title}</span>
     </div>
-    <p className="text-sm text-gray-500">{description}</p>
+    <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
   </button>
 );
 
@@ -75,9 +75,9 @@ const OptionPill = ({ label, active, onClick }) => (
 );
 
 const ScoreBadge = ({ label, value }) => (
-  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-    <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">{label}</div>
-    <div className="text-3xl font-bold text-gray-800">{value}</div>
+  <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-4 text-center">
+    <div className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">{label}</div>
+    <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{value}</div>
   </div>
 );
 
@@ -330,13 +330,13 @@ export const ArcadePage = () => {
   const timerColor =
     mode === GAME_MODES.TIME_ATTACK && countdown > 0 && countdown <= 10
       ? "text-red-600 animate-pulse"
-      : "text-gray-800";
+      : "text-gray-800 dark:text-gray-100";
 
   const wordProgress = typedText.trim().split(/\s+/).filter(Boolean).length;
 
   // ── render ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-900 to-indigo-700 text-white px-8 py-4 shadow-lg flex items-center gap-4 flex-shrink-0">
         <button
@@ -353,9 +353,9 @@ export const ArcadePage = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* ── Left config panel ── */}
-        <div className="w-72 bg-white border-r border-gray-200 p-6 overflow-y-auto flex-shrink-0 flex flex-col gap-6">
+        <div className="w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto flex-shrink-0 flex flex-col gap-6">
           <div>
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Game Mode</h2>
+            <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Game Mode</h2>
             <div className="flex flex-col gap-3">
               <ModeCard
                 icon="⏱️"
@@ -375,7 +375,7 @@ export const ArcadePage = () => {
           </div>
 
           <div>
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
               {mode === GAME_MODES.TIME_ATTACK ? "Duration" : "Word Count"}
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -400,14 +400,14 @@ export const ArcadePage = () => {
           </div>
 
           {bestScore && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-yellow-700 font-bold text-sm mb-2">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400 font-bold text-sm mb-2">
                 <Trophy className="w-4 h-4" /> Personal Best
               </div>
-              <div className="text-2xl font-bold text-gray-800">{bestScore.wpm} WPM</div>
-              <div className="text-xs text-gray-500 mt-1">{bestScore.accuracy}% accuracy</div>
+              <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{bestScore.wpm} WPM</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{bestScore.accuracy}% accuracy</div>
               {mode === GAME_MODES.WORD_SPRINT && (
-                <div className="text-xs text-gray-500">{formatTime(bestScore.time)}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{formatTime(bestScore.time)}</div>
               )}
             </div>
           )}
@@ -418,15 +418,15 @@ export const ArcadePage = () => {
 
           {/* Timer bar — only during playing */}
           {phase === "playing" && (
-            <div className="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between flex-shrink-0">
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-3 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <Timer className="w-5 h-5 text-gray-500" />
+                  <Timer className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <span className={`text-2xl font-bold tabular-nums ${timerColor}`}>
                     {timerDisplay}
                   </span>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   {mode === GAME_MODES.WORD_SPRINT
                     ? `${wordProgress} / ${wordOption.count} words`
                     : `${wordProgress} words typed`}
@@ -457,15 +457,15 @@ export const ArcadePage = () => {
                   <div className="text-6xl mb-4">
                     {mode === GAME_MODES.TIME_ATTACK ? "⏱️" : "🏃"}
                   </div>
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                     {mode === GAME_MODES.TIME_ATTACK ? "Time Attack" : "Word Sprint"}
                   </h2>
-                  <p className="text-gray-500 mb-2">
+                  <p className="text-gray-500 dark:text-gray-400 mb-2">
                     {mode === GAME_MODES.TIME_ATTACK
                       ? `Type as many words as possible in ${timeOption.label}.`
                       : `Type ${wordOption.count} words as fast as you can.`}
                   </p>
-                  <p className="text-sm text-gray-400 mb-8">
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mb-8">
                     Random Amharic words will appear. Timer starts on your first keystroke.
                   </p>
                   <Button onClick={startGame}>Start Game</Button>
@@ -476,14 +476,14 @@ export const ArcadePage = () => {
             {/* Playing screen */}
             {phase === "playing" && (
               <div className="max-w-4xl mx-auto flex flex-col gap-4">
-                <div className="h-52 overflow-y-auto p-5 bg-white rounded-xl border-2 border-gray-200">
+                <div className="h-52 overflow-y-auto p-5 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700">
                   <GhostText text={targetText} typedText={typedText} />
                 </div>
                 <input
                   ref={inputRef}
                   id="arcade-input"
                   type="text"
-                  className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                  className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-purple-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Type here… timer starts on first keystroke"
                   autoComplete="off"
                   autoCorrect="off"
@@ -496,11 +496,11 @@ export const ArcadePage = () => {
             {/* Results screen */}
             {phase === "results" && (
               <div className="h-full flex items-center justify-center">
-                <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full">
-                  <h2 className="text-3xl font-bold text-center mb-2 text-gray-800">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-lg w-full">
+                  <h2 className="text-3xl font-bold text-center mb-2 text-gray-800 dark:text-gray-100">
                     {mode === GAME_MODES.TIME_ATTACK ? "⏱️ Time's Up!" : "🏁 Sprint Complete!"}
                   </h2>
-                  <p className="text-center text-gray-400 text-sm mb-6">
+                  <p className="text-center text-gray-400 dark:text-gray-500 text-sm mb-6">
                     {mode === GAME_MODES.TIME_ATTACK
                       ? `${timeOption.label} challenge`
                       : `${wordOption.count}-word sprint`}

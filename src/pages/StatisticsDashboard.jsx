@@ -85,24 +85,26 @@ const buildLevelProgress = (completedLessons = []) =>
 // ─── sub-components ───────────────────────────────────────────────────────────
 
 const StatCard = ({ icon, label, value, sub }) => (
-  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
-    <div className="p-3 bg-gray-50 rounded-lg">{icon}</div>
+  <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-4">
+    <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">{icon}</div>
     <div>
-      <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">{label}</div>
-      <div className="text-2xl font-bold text-gray-800">{value}</div>
-      {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
+      <div className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">{label}</div>
+      <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{value}</div>
+      {sub && <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sub}</div>}
     </div>
   </div>
 );
 
 const ViewToggle = ({ value, onChange }) => (
-  <div className="inline-flex rounded-lg bg-gray-100 p-1 gap-1">
+  <div className="inline-flex rounded-lg bg-gray-100 dark:bg-gray-800 p-1 gap-1">
     {[["sessions", "Sessions"], ["weekly", "Weekly"], ["30days", "30 Days"]].map(([v, label]) => (
       <button
         key={v}
         onClick={() => onChange(v)}
         className={`px-3 py-1 text-sm rounded-md transition-all ${
-          value === v ? "bg-white shadow text-blue-600 font-semibold" : "text-gray-500 hover:text-gray-700"
+          value === v
+            ? "bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400 font-semibold"
+            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
         }`}
       >
         {label}
@@ -124,11 +126,11 @@ const LevelProgressBar = ({ level, completed, total }) => {
   const colors = { beginner: "bg-blue-400", elementary: "bg-green-400", intermediate: "bg-yellow-400", advanced: "bg-orange-400", expert: "bg-red-400" };
   return (
     <div>
-      <div className="flex justify-between text-xs text-gray-500 mb-1">
-        <span className="font-medium text-gray-700">{labels[level] ?? level}</span>
+      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+        <span className="font-medium text-gray-700 dark:text-gray-300">{labels[level] ?? level}</span>
         <span>{completed} / {total}</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${colors[level] ?? "bg-blue-400"}`}
           style={{ width: `${pct}%` }}
@@ -165,16 +167,16 @@ export const StatisticsDashboard = () => {
   const hasData = allSessions.length > 0;
 
   return (
-    <div className="h-full w-full overflow-y-auto bg-gray-100">
+    <div className="h-full w-full overflow-y-auto bg-gray-100 dark:bg-gray-900">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
-          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition font-medium"
+          className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition font-medium"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Lessons
         </button>
-        <h1 className="text-2xl font-bold text-gray-900">Statistics</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Statistics</h1>
         <ViewToggle value={viewMode} onChange={setViewMode} />
       </div>
 
@@ -210,8 +212,8 @@ export const StatisticsDashboard = () => {
         {/* ── Chart + Recent activity ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chart */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="text-base font-semibold text-gray-700 mb-4">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">
               {viewMode === "sessions" && "WPM — Last 20 Sessions"}
               {viewMode === "weekly"   && "WPM — Weekly Average"}
               {viewMode === "30days"   && "WPM — Last 30 Days"}
@@ -255,23 +257,23 @@ export const StatisticsDashboard = () => {
           </div>
 
           {/* Recent activity */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col">
-            <h3 className="text-base font-semibold text-gray-700 mb-4">Recent Activity</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col">
+            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">Recent Activity</h3>
             {recent.length > 0 ? (
               <div className="space-y-2 overflow-y-auto flex-1">
                 {recent.map((r, idx) => (
-                  <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="overflow-hidden min-w-0">
-                      <div className="font-medium truncate text-sm text-gray-800">
+                      <div className="font-medium truncate text-sm text-gray-800 dark:text-gray-200">
                         {r.lessonName || r.lessonId}
                       </div>
-                      <div className="text-[11px] text-gray-400 mt-0.5">
+                      <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
                         {r.date ? new Date(r.date).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}
                       </div>
                     </div>
                     <div className="text-right ml-3 flex-shrink-0">
-                      <div className="font-bold text-blue-600 text-sm">{r.wpm} WPM</div>
-                      <div className="text-xs text-gray-400">{r.accuracy}% acc</div>
+                      <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">{r.wpm} WPM</div>
+                      <div className="text-xs text-gray-400 dark:text-gray-500">{r.accuracy}% acc</div>
                     </div>
                   </div>
                 ))}
@@ -283,8 +285,8 @@ export const StatisticsDashboard = () => {
         </div>
 
         {/* ── Level progress ── */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-base font-semibold text-gray-700 mb-5">Level Progress</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-5">Level Progress</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {levelProgress.map(({ level, completed, total }) => (
               <LevelProgressBar key={level} level={level} completed={completed} total={total} />
@@ -293,8 +295,8 @@ export const StatisticsDashboard = () => {
         </div>
 
         {/* ── Best scores per lesson (top 10 by WPM) ── */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-base font-semibold text-gray-700 mb-4">Top Lesson Scores</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">Top Lesson Scores</h3>
           {completedLessons.length > 0 ? (() => {
             const allLessons = Object.values(COURSE_DATA).flat();
             const rows = completedLessons
@@ -311,30 +313,30 @@ export const StatisticsDashboard = () => {
               .sort((a, b) => b.wpm - a.wpm)
               .slice(0, 10);
 
-            const levelColor = { beginner: "bg-blue-100 text-blue-700", elementary: "bg-green-100 text-green-700", intermediate: "bg-yellow-100 text-yellow-700", advanced: "bg-orange-100 text-orange-700", expert: "bg-red-100 text-red-700" };
+            const levelColor = { beginner: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300", elementary: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300", intermediate: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300", advanced: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300", expert: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" };
 
             return (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-xs text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                    <tr className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-700">
                       <th className="text-left pb-2 font-medium">Lesson</th>
                       <th className="text-left pb-2 font-medium">Level</th>
                       <th className="text-right pb-2 font-medium">Best WPM</th>
                       <th className="text-right pb-2 font-medium">Accuracy</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                     {rows.map((r, i) => (
-                      <tr key={i} className="hover:bg-gray-50">
-                        <td className="py-2 pr-4 font-medium text-gray-800 truncate max-w-[200px]">{r.name}</td>
+                      <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td className="py-2 pr-4 font-medium text-gray-800 dark:text-gray-200 truncate max-w-[200px]">{r.name}</td>
                         <td className="py-2 pr-4">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${levelColor[r.level] ?? "bg-gray-100 text-gray-600"}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${levelColor[r.level] ?? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"}`}>
                             {r.level}
                           </span>
                         </td>
-                        <td className="py-2 text-right font-bold text-blue-600">{r.wpm}</td>
-                        <td className="py-2 text-right text-gray-500">{r.accuracy}%</td>
+                        <td className="py-2 text-right font-bold text-blue-600 dark:text-blue-400">{r.wpm}</td>
+                        <td className="py-2 text-right text-gray-500 dark:text-gray-400">{r.accuracy}%</td>
                       </tr>
                     ))}
                   </tbody>

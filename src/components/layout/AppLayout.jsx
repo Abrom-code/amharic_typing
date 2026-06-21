@@ -14,13 +14,13 @@ export const AppLayout = ({ children, onLessonSelect, currentLessonId }) => {
     : 0
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
       <Header overallScore={overallScore} />
-      
+
       <div className="flex flex-1 overflow-hidden">
         <Sidebar onLessonSelect={onLessonSelect} currentLessonId={currentLessonId} />
-        
-        <main className="flex-1 overflow-y-auto">
+
+        <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
           {children}
         </main>
       </div>

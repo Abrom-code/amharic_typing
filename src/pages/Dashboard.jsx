@@ -56,10 +56,10 @@ export const Dashboard = () => {
       ) : (
         <div className="h-full flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            <h2 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">
               Welcome to Amharic Typing Trainer
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-400">
               Select a lesson from the sidebar to begin your journey
             </p>
           </div>
