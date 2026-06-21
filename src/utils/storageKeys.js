@@ -6,4 +6,5 @@ export const STORAGE_KEYS = {
   SESSION_HISTORY: "amharic_typing_history",
   SETTINGS: "amharic_typing_settings",
   ARCADE_SCORES: "amharic_typing_arcade_scores",
+  GAME_SCORES: "amharic_typing_game_scores",
 };

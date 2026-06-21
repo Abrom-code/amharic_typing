@@ -23,6 +23,11 @@ export const ProgressProvider = ({ children }) => {
     STORAGE_KEYS.ARCADE_SCORES,
     {},
   );
+  // gameScores: { [gameId]: { score, wave, combo, date, ... } }
+  const [gameScores, setGameScores] = useLocalStorage(
+    STORAGE_KEYS.GAME_SCORES,
+    {},
+  );
 
   const completeLesson = (lessonId, wpm, accuracy, letterStats = null) => {
     const newCompleted = completedLessons.includes(lessonId)
@@ -72,6 +77,14 @@ export const ProgressProvider = ({ children }) => {
     }
   };
 
+  const saveGameScore = (gameId, scoreData) => {
+    const existing = gameScores[gameId];
+    const isBetter = !existing || (scoreData.score || 0) > (existing.score || 0);
+    if (isBetter) {
+      setGameScores({ ...gameScores, [gameId]: { ...scoreData, date: new Date().toISOString() } });
+    }
+  };
+
   const isLessonCompleted = (lessonId) => completedLessons.includes(lessonId);
   const getLessonScore = (lessonId) => highScores[lessonId];
 
@@ -82,8 +95,10 @@ export const ProgressProvider = ({ children }) => {
         highScores,
         sessions,
         arcadeScores,
+        gameScores,
         completeLesson,
         saveArcadeScore,
+        saveGameScore,
         isLessonCompleted,
         getLessonScore,
       }}

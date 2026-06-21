@@ -10,8 +10,10 @@ import { useProgress } from '../context/ProgressContext'
 const FEATURES = [
   { icon: '📚', title: '5 Levels', desc: 'Beginner to Expert — 72 structured lessons' },
   { icon: '⏱️', title: 'Live Metrics', desc: 'Real-time WPM, accuracy and timer' },
+  { icon: '🎮', title: '5 Games', desc: 'Falling Words, Zombies, Space, Race, Combo' },
   { icon: '🕹️', title: 'Arcade Mode', desc: 'Time Attack and Word Sprint challenges' },
   { icon: '📊', title: 'Statistics', desc: 'Track progress, streaks and top scores' },
+  { icon: '🌙', title: 'Dark Mode', desc: 'Light and dark theme, saved automatically' },
 ]
 
 // ── welcome screen ────────────────────────────────────────────────────────────
@@ -87,7 +89,7 @@ const WelcomeScreen = ({ onLessonSelect }) => {
         )}
 
         {/* Feature cards */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {FEATURES.map(({ icon, title, desc }) => (
             <div
               key={title}
