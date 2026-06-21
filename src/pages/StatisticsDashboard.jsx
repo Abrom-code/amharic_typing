@@ -8,10 +8,12 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { Star, TrendingUp, Activity, Sparkles, ArrowLeft, BookOpen } from "lucide-react";
+import { Star, TrendingUp, Activity, Sparkles, ArrowLeft, BookOpen, Gamepad2, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { COURSE_DATA } from "../data/courseData";
 import { useProgress } from "../context/ProgressContext";
+import { formatTime } from "../utils/helpers";
+import { GAME_MODES, TIME_ATTACK_OPTIONS, WORD_SPRINT_OPTIONS } from "../utils/constants";
 
 // ─── data builders ────────────────────────────────────────────────────────────
 
@@ -143,7 +145,7 @@ const LevelProgressBar = ({ level, completed, total }) => {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 export const StatisticsDashboard = () => {
-  const { completedLessons, sessions } = useProgress();
+  const { completedLessons, sessions, arcadeScores, gameScores } = useProgress();
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState("sessions");
 
@@ -346,6 +348,110 @@ export const StatisticsDashboard = () => {
           })() : (
             <EmptyState message="Complete lessons to see your top scores here." />
           )}
+        </div>
+
+        {/* ── Games & Arcade personal bests ── */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-5 flex items-center gap-2">
+            <Gamepad2 className="w-4 h-4 text-purple-500" /> Games &amp; Arcade — Personal Bests
+          </h3>
+
+          {/* ── Typing Games ── */}
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Typing Games</p>
+          {(() => {
+            const GAME_META = [
+              { id: 'falling', emoji: '🌧️', name: 'Falling Words',  stat: (s) => `${s.score?.toLocaleString()} pts`, sub: (s) => `Combo ×${s.combo} · ${s.time}s` },
+              { id: 'zombie',  emoji: '🧟', name: 'Zombie Survival', stat: (s) => `Wave ${s.wave}`,                   sub: (s) => `${s.score?.toLocaleString()} pts · Combo ×${s.combo}` },
+              { id: 'space',   emoji: '🚀', name: 'Space Shooter',   stat: (s) => `Level ${s.level}`,                 sub: (s) => `${s.score?.toLocaleString()} pts · Streak ${s.streak}` },
+              { id: 'race',    emoji: '🏎️', name: 'Race vs AI',      stat: (s) => `${s.wpm} WPM`,                     sub: (s) => `${s.diff ?? ''} · ${s.time}s` },
+              { id: 'combo',   emoji: '🔥', name: 'Endless Combo',   stat: (s) => `×${s.combo} combo`,                sub: (s) => `${s.score?.toLocaleString()} pts` },
+            ]
+            const hasAny = GAME_META.some(g => gameScores?.[g.id])
+            if (!hasAny) return <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">No game sessions yet. Play a game to see your records here.</p>
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+                {GAME_META.map(g => {
+                  const best = gameScores?.[g.id]
+                  return (
+                    <div key={g.id} className={`rounded-xl p-4 border text-center ${
+                      best
+                        ? 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                        : 'bg-gray-50/50 dark:bg-gray-800/50 border-dashed border-gray-200 dark:border-gray-700 opacity-50'
+                    }`}>
+                      <div className="text-2xl mb-1">{g.emoji}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">{g.name}</div>
+                      {best ? (
+                        <>
+                          <div className="text-lg font-bold text-gray-800 dark:text-white">{g.stat(best)}</div>
+                          <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{g.sub(best)}</div>
+                          {best.date && (
+                            <div className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">
+                              {new Date(best.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-xs text-gray-400 dark:text-gray-500">No record</div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
+
+          {/* ── Arcade Mode ── */}
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Arcade Mode</p>
+          {(() => {
+            const taScores = arcadeScores?.[GAME_MODES.TIME_ATTACK] || {}
+            const wsScores = arcadeScores?.[GAME_MODES.WORD_SPRINT] || {}
+            const hasArcade = Object.keys(taScores).length > 0 || Object.keys(wsScores).length > 0
+            if (!hasArcade) return <p className="text-sm text-gray-400 dark:text-gray-500">No arcade sessions yet.</p>
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Time Attack */}
+                {Object.keys(taScores).length > 0 && (
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2 flex items-center gap-1">
+                      <Trophy className="w-3 h-3 text-yellow-500" /> ⏱️ Time Attack
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {TIME_ATTACK_OPTIONS.filter(o => taScores[String(o.seconds)]).map(o => {
+                        const s = taScores[String(o.seconds)]
+                        return (
+                          <div key={o.seconds} className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-center min-w-[90px]">
+                            <div className="text-xs text-gray-400 dark:text-gray-500">{o.label}</div>
+                            <div className="font-bold text-blue-600 dark:text-blue-400">{s.wpm} WPM</div>
+                            <div className="text-[11px] text-gray-400 dark:text-gray-500">{s.accuracy}% · {s.wordsTyped}w</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+                {/* Word Sprint */}
+                {Object.keys(wsScores).length > 0 && (
+                  <div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2 flex items-center gap-1">
+                      <Trophy className="w-3 h-3 text-yellow-500" /> 🏃 Word Sprint
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {WORD_SPRINT_OPTIONS.filter(o => wsScores[String(o.count)]).map(o => {
+                        const s = wsScores[String(o.count)]
+                        return (
+                          <div key={o.count} className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-center min-w-[90px]">
+                            <div className="text-xs text-gray-400 dark:text-gray-500">{o.label}</div>
+                            <div className="font-bold text-green-600 dark:text-green-400">{formatTime(s.time)}</div>
+                            <div className="text-[11px] text-gray-400 dark:text-gray-500">{s.wpm} WPM · {s.accuracy}%</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
         </div>
 
         <div className="h-6" />
