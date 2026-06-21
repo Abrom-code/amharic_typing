@@ -10,9 +10,7 @@ import { useProgress } from '../context/ProgressContext'
 const FEATURES = [
   { icon: '📚', title: '5 Levels', desc: 'Beginner to Expert — 72 structured lessons' },
   { icon: '⏱️', title: 'Live Metrics', desc: 'Real-time WPM, accuracy and timer' },
-  { icon: '🎮', title: '5 Games', desc: 'Falling Words, Zombies, Space, Race, Combo' },
-  { icon: '🕹️', title: 'Arcade Mode', desc: 'Time Attack and Word Sprint challenges' },
-  { icon: '📊', title: 'Statistics', desc: 'Track progress, streaks and top scores' },
+  { icon: '🎮', title: 'Games & Arcade', desc: 'Falling Words, Zombies, Space, Race, Combo + Time Attack & Word Sprint' },  { icon: '📊', title: 'Statistics', desc: 'Track progress, streaks and top scores' },
   { icon: '🌙', title: 'Dark Mode', desc: 'Light and dark theme, saved automatically' },
 ]
 
@@ -89,8 +87,7 @@ const WelcomeScreen = ({ onLessonSelect }) => {
         )}
 
         {/* Feature cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {FEATURES.map(({ icon, title, desc }) => (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">          {FEATURES.map(({ icon, title, desc }) => (
             <div
               key={title}
               className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm"

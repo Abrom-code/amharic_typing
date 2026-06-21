@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Dashboard } from "../pages/Dashboard";
 import StatisticsDashboard from "../pages/StatisticsDashboard";
-import ArcadePage from "../pages/ArcadePage";
 import GamesHub from "../pages/GamesHub";
 import FallingWords from "../pages/games/FallingWords";
 import ZombieSurvival from "../pages/games/ZombieSurvival";
@@ -14,7 +13,6 @@ const AppRouter = () => {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/stats" element={<StatisticsDashboard />} />
-      <Route path="/arcade" element={<ArcadePage />} />
       <Route path="/games" element={<GamesHub />} />
       <Route path="/games/falling" element={<FallingWords />} />
       <Route path="/games/zombie" element={<ZombieSurvival />} />
