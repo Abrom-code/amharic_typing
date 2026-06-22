@@ -175,22 +175,22 @@ export default function ZombieSurvival() {
 
   return (
     <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden select-none">
-      <div className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
         <button onClick={() => { clearInterval(tickRef.current); navigate('/games') }} className="text-gray-400 hover:text-white">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-5 text-sm font-semibold">
-          <span className="text-yellow-400">Score: {score.toLocaleString()}</span>
-          <span className="text-orange-400">Combo: x{combo}</span>
-          <span className="text-green-400">Wave: {wave}</span>
-          <div className="flex gap-1">
+        <div className="flex items-center gap-3 md:gap-5 text-xs md:text-sm font-semibold">
+          <span className="text-yellow-400">⭐{score.toLocaleString()}</span>
+          <span className="text-orange-400">×{combo}</span>
+          <span className="text-green-400">W{wave}</span>
+          <div className="flex gap-0.5 md:gap-1">
             {Array.from({ length: MAX_HP }).map((_, i) => (
-              <Heart key={i} className={`w-4 h-4 ${i < hp ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+              <Heart key={i} className={`w-3.5 h-3.5 md:w-4 md:h-4 ${i < hp ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
             ))}
           </div>
-          {powerUp === 'shield' && <Shield className="w-5 h-5 text-cyan-400 animate-pulse" />}
+          {powerUp === 'shield' && <Shield className="w-4 h-4 text-cyan-400 animate-pulse" />}
         </div>
-        {best && <span className="text-xs text-gray-500">Best: Wave {best.wave}</span>}
+        {best && <span className="text-xs text-gray-500 hidden sm:block">Best: W{best.wave}</span>}
       </div>
 
       <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-gray-900 to-gray-950">

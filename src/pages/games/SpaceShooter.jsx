@@ -154,21 +154,21 @@ export default function SpaceShooter() {
         ))}
       </div>
 
-      <div className="flex items-center justify-between px-6 py-3 bg-black/40 border-b border-indigo-900 flex-shrink-0 z-10">
+      <div className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 bg-black/40 border-b border-indigo-900 flex-shrink-0 z-10">
         <button onClick={() => { clearInterval(tickRef.current); navigate('/games') }} className="text-gray-400 hover:text-white">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-5 text-sm font-semibold">
-          <span className="text-yellow-400">Score: {score.toLocaleString()}</span>
-          <span className="text-cyan-400">Streak: {streak}</span>
-          <span className="text-indigo-300">Level: {level}</span>
-          <div className="flex gap-1">
+        <div className="flex items-center gap-3 md:gap-5 text-xs md:text-sm font-semibold">
+          <span className="text-yellow-400">⭐{score.toLocaleString()}</span>
+          <span className="text-cyan-400">×{streak}</span>
+          <span className="text-indigo-300">Lv{level}</span>
+          <div className="flex gap-0.5 md:gap-1">
             {Array.from({ length: MAX_HP }).map((_, i) => (
-              <span key={i} className={`text-lg ${i < hp ? '' : 'opacity-20'}`}>🛡️</span>
+              <span key={i} className={`text-sm md:text-lg ${i < hp ? '' : 'opacity-20'}`}>🛡️</span>
             ))}
           </div>
         </div>
-        {best && <span className="text-xs text-gray-500">Best: Lv{best.level}</span>}
+        {best && <span className="text-xs text-gray-500 hidden sm:block">Best: Lv{best.level}</span>}
       </div>
 
       <div className="flex-1 relative overflow-hidden z-10">

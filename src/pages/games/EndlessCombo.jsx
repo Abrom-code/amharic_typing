@@ -115,19 +115,19 @@ export default function EndlessCombo() {
 
   return (
     <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden select-none">
-      <div className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
         <button onClick={() => { clearInterval(timerRef.current); clearInterval(tickRef.current); navigate('/games') }} className="text-gray-400 hover:text-white">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-5 text-sm font-semibold">
-          <span className="text-yellow-400">Score: {score.toLocaleString()}</span>
-          <span className="text-orange-400">Combo: x{combo}</span>
-          <span className="text-pink-400">Best: x{maxCombo}</span>
+        <div className="flex items-center gap-3 md:gap-5 text-xs md:text-sm font-semibold">
+          <span className="text-yellow-400">⭐{score.toLocaleString()}</span>
+          <span className="text-orange-400">×{combo}</span>
+          <span className="text-pink-400">↑{maxCombo}</span>
         </div>
-        {best && <span className="text-xs text-gray-500">Record: x{best.combo}</span>}
+        {best && <span className="text-xs text-gray-500 hidden sm:block">Record: ×{best.combo}</span>}
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto">
         {phase !== 'menu' && (
           <>
             {/* Timer bar */}
@@ -142,9 +142,9 @@ export default function EndlessCombo() {
 
             {/* Combo ring */}
             <div className="relative flex items-center justify-center">
-              <div className="w-32 h-32 rounded-full border-4 border-pink-600 flex items-center justify-center">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-pink-600 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-3xl font-black text-pink-400">×{combo}</div>
+                  <div className="text-2xl md:text-3xl font-black text-pink-400">×{combo}</div>
                   <div className="text-xs text-gray-500">combo</div>
                 </div>
               </div>
@@ -152,8 +152,8 @@ export default function EndlessCombo() {
 
             {/* Word */}
             <div className="text-center">
-              <div className="text-4xl font-amharic font-bold text-white tracking-widest">{word}</div>
-              {flash && <div className="text-yellow-400 font-bold text-lg mt-2 animate-bounce">{flash}</div>}
+              <div className="text-3xl md:text-4xl font-amharic font-bold text-white tracking-widest">{word}</div>
+              {flash && <div className="text-yellow-400 font-bold text-base md:text-lg mt-2 animate-bounce">{flash}</div>}
             </div>
 
             {/* Input */}
@@ -162,7 +162,7 @@ export default function EndlessCombo() {
                 ref={inputRef}
                 type="text"
                 value={inputVal}
-                className="w-full max-w-md bg-gray-800 text-white font-amharic text-2xl px-6 py-3 rounded-xl border border-gray-600 focus:border-pink-500 focus:outline-none text-center"
+                className="w-full max-w-md bg-gray-800 text-white font-amharic text-xl md:text-2xl px-4 md:px-6 py-2 md:py-3 rounded-xl border border-gray-600 focus:border-pink-500 focus:outline-none text-center"
                 placeholder="Type the word…"
                 onChange={handleInput}
                 autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"

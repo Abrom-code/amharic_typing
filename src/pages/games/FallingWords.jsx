@@ -177,21 +177,21 @@ export default function FallingWords() {
   return (
     <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden select-none">
       {/* HUD */}
-      <div className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
         <button onClick={() => { clearInterval(tickRef.current); clearInterval(spawnRef.current); navigate('/games') }} className="text-gray-400 hover:text-white">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-6 text-sm font-semibold">
-          <span className="text-yellow-400">Score: {score.toLocaleString()}</span>
-          <span className="text-orange-400">Combo: x{combo}</span>
-          <span className="text-gray-400">Time: {elapsed}s</span>
-          <div className="flex gap-1">
+        <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm font-semibold">
+          <span className="text-yellow-400">⭐{score.toLocaleString()}</span>
+          <span className="text-orange-400">×{combo}</span>
+          <span className="text-gray-400">{elapsed}s</span>
+          <div className="flex gap-0.5 md:gap-1">
             {Array.from({ length: MAX_LIVES }).map((_, i) => (
-              <Heart key={i} className={`w-5 h-5 ${i < lives ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+              <Heart key={i} className={`w-4 h-4 md:w-5 md:h-5 ${i < lives ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
             ))}
           </div>
         </div>
-        {best && <span className="text-xs text-gray-500">Best: {best.score?.toLocaleString()}</span>}
+        {best && <span className="text-xs text-gray-500 hidden sm:block">Best: {best.score?.toLocaleString()}</span>}
       </div>
 
       {/* Game area */}

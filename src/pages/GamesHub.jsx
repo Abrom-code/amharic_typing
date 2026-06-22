@@ -202,12 +202,12 @@ export default function GamesHub() {
   return (
     <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-gray-900 border-b border-gray-800 px-8 py-4 flex items-center gap-4 flex-shrink-0">
+      <div className="bg-gray-900 border-b border-gray-800 px-4 md:px-8 py-3 md:py-4 flex items-center gap-3 md:gap-4 flex-shrink-0">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Zap className="w-6 h-6 text-yellow-400" /> Games &amp; Arcade
+        <h1 className="text-lg md:text-2xl font-bold flex items-center gap-2">
+          <Zap className="w-5 h-5 md:w-6 md:h-6 text-yellow-400" /> Games &amp; Arcade
         </h1>
       </div>
 

@@ -108,18 +108,18 @@ export default function RaceVsAI() {
 
   return (
     <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden select-none">
-      <div className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
         <button onClick={() => { clearInterval(tickRef.current); navigate('/games') }} className="text-gray-400 hover:text-white">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-5 text-sm font-semibold">
-          <span className="text-yellow-400">Time: {elapsed}s</span>
-          <span className="text-blue-400">Word: {currentWord}/{WORD_COUNT}</span>
+        <div className="flex items-center gap-3 md:gap-5 text-xs md:text-sm font-semibold">
+          <span className="text-yellow-400">{elapsed}s</span>
+          <span className="text-blue-400">{currentWord}/{WORD_COUNT}</span>
         </div>
-        {best?.wpm && <span className="text-xs text-gray-500">Best: {best.wpm} WPM</span>}
+        {best?.wpm && <span className="text-xs text-gray-500 hidden sm:block">Best: {best.wpm} WPM</span>}
       </div>
 
-      <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto">
+      <div className="flex-1 p-3 md:p-6 flex flex-col gap-3 md:gap-4 overflow-y-auto">
         {/* Race tracks */}
         {phase !== 'menu' && (
           <div className="space-y-4">
@@ -155,7 +155,7 @@ export default function RaceVsAI() {
         {/* Text to type */}
         {phase === 'playing' && (
           <div className="flex-1 flex flex-col gap-4">
-            <div className="bg-gray-900 rounded-xl p-4 leading-loose font-amharic text-lg flex-1 overflow-y-auto">
+            <div className="bg-gray-900 rounded-xl p-3 md:p-4 leading-loose font-amharic text-base md:text-lg flex-1 overflow-y-auto max-h-32 md:max-h-none">
               {words.map((w, i) => (
                 <span key={i} className={`mr-2 ${
                   i < currentWord ? 'text-green-500' :

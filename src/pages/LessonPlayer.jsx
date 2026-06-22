@@ -127,30 +127,30 @@ export const LessonPlayer = ({ lesson, levelName, onNextLesson }) => {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* ── Top: lesson title + metrics ── */}
-      <div className="px-8 pt-6 pb-3 flex-shrink-0 max-w-5xl w-full mx-auto">
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1">{lesson.name}</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{levelName}</p>
+      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-3 flex-shrink-0 max-w-5xl w-full mx-auto">
+        <div className="mb-3 md:mb-4">
+          <h2 className="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1">{lesson.name}</h2>
+          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">{levelName}</p>
         </div>
         <MetricsBar wpm={wpm} accuracy={accuracy} time={time} />
       </div>
 
       {/* ── Middle: fixed-height scrollable ghost text box ── */}
-      <div className="px-8 flex-shrink-0 max-w-5xl w-full mx-auto">
-        <div className="h-52 overflow-y-auto p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700">
+      <div className="px-4 md:px-8 flex-shrink-0 max-w-5xl w-full mx-auto">
+        <div className="h-40 md:h-52 overflow-y-auto p-3 md:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700">
           <GhostText text={lesson.text} typedText={typedText} />
         </div>
       </div>
 
       {/* ── Bottom: input + controls — always visible ── */}
-      <div className="px-8 pt-4 pb-6 flex-shrink-0 max-w-5xl w-full mx-auto">
+      <div className="px-4 md:px-8 pt-3 md:pt-4 pb-4 md:pb-6 flex-shrink-0 max-w-5xl w-full mx-auto">
         <input
           ref={inputRef}
           id="typing-input-hidden"
           type="text"
-          className="w-full px-4 py-3 text-2xl font-amharic border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+          className="w-full px-3 md:px-4 py-2 md:py-3 text-xl md:text-2xl font-amharic border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
           disabled={!isActive}
-          placeholder={isActive ? "Type here..." : "Press any key or click Start to begin"}
+          placeholder={isActive ? "Type here..." : "Tap Start or press any key"}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
