@@ -1,100 +1,115 @@
-import { useState } from "react";
-import { X } from "lucide-react";
-import { COURSE_DATA } from "../../data/courseData";
-import { LEVEL_ICONS, LEVEL_NAMES } from "../../utils/constants";
-import { useProgress } from "../../context/ProgressContext";
-import { Badge } from "../ui/Badge";
-import { Button } from "../ui/Button";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react'
+import { X, ChevronDown, ChevronRight, BarChart2, Gamepad2 } from 'lucide-react'
+import { COURSE_DATA } from '../../data/courseData'
+import { LEVEL_ICONS, LEVEL_NAMES } from '../../utils/constants'
+import { useProgress } from '../../context/ProgressContext'
+import { useNavigate } from 'react-router-dom'
 
 export const Sidebar = ({ onLessonSelect, currentLessonId, onClose }) => {
-  const { isLessonCompleted } = useProgress();
-  const [expandedLevel, setExpandedLevel] = useState(null);
-  const navigate = useNavigate();
-
-  const toggleLevel = (level) => {
-    setExpandedLevel(expandedLevel === level ? null : level);
-  };
+  const { isLessonCompleted } = useProgress()
+  const [expandedLevel, setExpandedLevel] = useState(null)
+  const navigate = useNavigate()
 
   const handleLessonClick = (lesson, level) => {
-    onLessonSelect(lesson, level);
-    // close drawer on mobile after selection
-    if (onClose) onClose();
-  };
+    onLessonSelect(lesson, level)
+    if (onClose) onClose()
+  }
 
   const handleNav = (path) => {
-    navigate(path);
-    if (onClose) onClose();
-  };
+    navigate(path)
+    if (onClose) onClose()
+  }
 
   return (
-    <aside className="w-72 bg-gray-800 dark:bg-gray-950 text-white overflow-y-auto flex-shrink-0 flex flex-col h-full">
-      {/* Close button — only shown when used as a drawer on mobile */}
-      {onClose && (
-        <div className="flex justify-end px-4 pt-4 flex-shrink-0">
+    <aside className="w-72 bg-slate-900 text-slate-100 flex flex-col h-full flex-shrink-0">
+
+      {/* Sidebar header */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <span className="text-sm font-semibold text-slate-300 uppercase tracking-widest">Lessons</span>
+        {onClose && (
           <button
             onClick={onClose}
-            aria-label="Close menu"
-            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition"
+            aria-label="Close"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="p-5 flex-1 overflow-y-auto">
+      {/* Level list */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
         {Object.keys(COURSE_DATA).map((level) => {
-          const expanded = expandedLevel === level;
+          const expanded = expandedLevel === level
+          const lessons = COURSE_DATA[level]
+          const doneCount = lessons.filter(l => isLessonCompleted(l.id)).length
 
           return (
-            <div key={level} className="mb-4">
-              <div
-                onClick={() => toggleLevel(level)}
-                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+            <div key={level}>
+              {/* Level header */}
+              <button
+                onClick={() => setExpandedLevel(expanded ? null : level)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-slate-800 group"
               >
-                <span className="text-2xl">{LEVEL_ICONS[level]}</span>
-                <h3 className="text-sm font-semibold flex-1">{LEVEL_NAMES[level]}</h3>
-                <span className="text-gray-400 text-xs">{expanded ? '▲' : '▼'}</span>
-              </div>
+                <span className="text-lg leading-none">{LEVEL_ICONS[level]}</span>
+                <span className="flex-1 text-sm font-medium text-slate-200 group-hover:text-white">{LEVEL_NAMES[level]}</span>
+                <span className="text-xs text-slate-500 tabular-nums">{doneCount}/{lessons.length}</span>
+                {expanded
+                  ? <ChevronDown className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                  : <ChevronRight className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                }
+              </button>
 
+              {/* Lesson list */}
               {expanded && (
-                <div className="mt-2 space-y-1">
-                  {COURSE_DATA[level].map((lesson) => {
-                    const completed = isLessonCompleted(lesson.id);
-                    const active = currentLessonId === lesson.id;
+                <div className="mt-1 ml-3 pl-3 border-l border-slate-700 space-y-0.5">
+                  {lessons.map((lesson) => {
+                    const completed = isLessonCompleted(lesson.id)
+                    const active = currentLessonId === lesson.id
 
                     return (
-                      <div
+                      <button
                         key={lesson.id}
                         onClick={() => handleLessonClick(lesson, level)}
-                        className={`pl-12 pr-3 py-2 text-sm cursor-pointer transition-all rounded ${
+                        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left text-xs transition-all ${
                           active
-                            ? "bg-blue-600 font-semibold"
-                            : "hover:bg-gray-700 dark:hover:bg-gray-800"
+                            ? 'bg-brand-600 text-white font-semibold'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
                         }`}
                       >
-                        <div className="flex justify-between items-center">
-                          <span>{lesson.name}</span>
-                          {completed && <Badge variant="success">✓</Badge>}
-                        </div>
-                      </div>
-                    );
+                        <span className="flex-1 truncate">{lesson.name}</span>
+                        {completed && (
+                          <span className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-emerald-900/60 text-emerald-400'}`}>
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    )
                   })}
                 </div>
               )}
             </div>
-          );
+          )
         })}
+      </nav>
 
-        <div className="mt-6 flex flex-col gap-2">
-          <Button onClick={() => handleNav("/games")} className="w-full" variant="primary">
-            🎮 Games &amp; Arcade
-          </Button>
-          <Button onClick={() => handleNav("/stats")} className="w-full" variant="secondary">
-            View Statistics
-          </Button>
-        </div>
+      {/* Bottom navigation */}
+      <div className="px-3 py-4 border-t border-slate-800 space-y-1">
+        <button
+          onClick={() => handleNav('/games')}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition"
+        >
+          <Gamepad2 className="w-4 h-4 text-violet-400" />
+          Games &amp; Arcade
+        </button>
+        <button
+          onClick={() => handleNav('/stats')}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition"
+        >
+          <BarChart2 className="w-4 h-4 text-brand-400" />
+          Statistics
+        </button>
       </div>
     </aside>
-  );
-};
+  )
+}

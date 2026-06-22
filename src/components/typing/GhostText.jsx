@@ -4,30 +4,22 @@ export const GhostText = ({ text, typedText }) => {
   const cursorRef = useRef(null)
 
   useEffect(() => {
-    if (cursorRef.current) {
-      cursorRef.current.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-    }
+    cursorRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [typedText])
 
   return (
-    <div className="text-2xl leading-loose font-amharic tracking-wider select-none">
-      {text.split('').map((char, index) => {
-        let className = 'text-gray-400 dark:text-gray-500'
-
-        if (index < typedText.length) {
-          className = typedText[index] === char
-            ? 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/40'
-            : 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/40'
-        } else if (index === typedText.length) {
-          className = 'bg-yellow-300 dark:bg-yellow-500/70 text-black dark:text-white animate-blink'
+    <div className="text-xl md:text-2xl leading-loose font-amharic tracking-wider select-none">
+      {text.split('').map((char, i) => {
+        let cls = 'text-slate-400 dark:text-slate-500'
+        if (i < typedText.length) {
+          cls = typedText[i] === char
+            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 rounded'
+            : 'text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded'
+        } else if (i === typedText.length) {
+          cls = 'text-slate-800 dark:text-slate-100 bg-brand-200 dark:bg-brand-500/40 rounded animate-blink'
         }
-
         return (
-          <span
-            key={index}
-            ref={index === typedText.length ? cursorRef : null}
-            className={`${className} px-0.5 inline-block`}
-          >
+          <span key={i} ref={i === typedText.length ? cursorRef : null} className={`${cls} px-px inline-block`}>
             {char === ' ' ? '\u00A0' : char}
           </span>
         )

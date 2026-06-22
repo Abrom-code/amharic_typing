@@ -200,15 +200,18 @@ export default function GamesHub() {
   const wordProgress = typedText.trim().split(/\s+/).filter(Boolean).length
 
   return (
-    <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden">
+    <div className="h-screen bg-slate-950 text-white flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-gray-900 border-b border-gray-800 px-4 md:px-8 py-3 md:py-4 flex items-center gap-3 md:gap-4 flex-shrink-0">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition">
-          <ArrowLeft className="w-5 h-5" />
+      <div className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 md:px-6 py-3 flex items-center gap-3 flex-shrink-0">
+        <button onClick={() => navigate('/')} className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <ArrowLeft className="w-4 h-4" />
         </button>
-        <h1 className="text-lg md:text-2xl font-bold flex items-center gap-2">
-          <Zap className="w-5 h-5 md:w-6 md:h-6 text-yellow-400" /> Games &amp; Arcade
-        </h1>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-brand-500 flex items-center justify-center">
+            <Zap className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-base md:text-lg font-bold text-white">Games &amp; Arcade</h1>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -216,22 +219,22 @@ export default function GamesHub() {
 
           {/* ── Section 1: Typing Games ── */}
           <section>
-            <h2 className="text-lg font-bold text-gray-300 mb-1">🎮 Typing Games</h2>
-            <p className="text-gray-500 text-sm mb-5">Amharic words. Build speed and reflexes.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">🎮 Typing Games</h2>
+            <p className="text-slate-500 text-xs mb-4">Amharic words. Build speed and reflexes.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {GAMES.map((g) => {
                 const best = gameScores?.[g.id]
                 return (
                   <button
                     key={g.id}
                     onClick={() => navigate(g.path)}
-                    className={`text-left rounded-2xl p-6 bg-gradient-to-br ${g.color} hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-xl`}
+                    className={`text-left rounded-2xl p-5 bg-gradient-to-br ${g.color} hover:scale-[1.02] active:scale-[0.98] transition-all shadow-card-lg`}
                   >
-                    <div className="text-4xl mb-3">{g.emoji}</div>
-                    <div className="text-xl font-bold mb-1">{g.title}</div>
-                    <p className="text-sm text-white/80 mb-4">{g.desc}</p>
+                    <div className="text-3xl mb-2">{g.emoji}</div>
+                    <div className="text-base font-bold mb-1">{g.title}</div>
+                    <p className="text-xs text-white/75 mb-3 leading-relaxed">{g.desc}</p>
                     {best && (
-                      <div className="text-xs text-white/60 bg-black/20 rounded-lg px-3 py-1 inline-block">
+                      <div className="text-[11px] text-white/60 bg-black/20 rounded-lg px-2.5 py-1 inline-block">
                         Best: {best.score?.toLocaleString()} pts
                       </div>
                     )}
@@ -243,10 +246,9 @@ export default function GamesHub() {
 
           {/* ── Section 2: Arcade Mode ── */}
           <section>
-            <h2 className="text-lg font-bold text-gray-300 mb-1">🕹️ Arcade Mode</h2>
-            <p className="text-gray-500 text-sm mb-5">Timed or word-count challenges with random Amharic words.</p>
-
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">🕹️ Arcade Mode</h2>
+            <p className="text-slate-500 text-xs mb-4">Timed or word-count challenges with random Amharic words.</p>
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
               <div className="flex flex-col lg:flex-row">
 
                 {/* Config panel */}

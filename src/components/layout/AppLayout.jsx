@@ -16,36 +16,25 @@ export const AppLayout = ({ children, onLessonSelect, currentLessonId }) => {
     : 0
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100 dark:bg-gray-900 overflow-hidden">
-      <Header
-        overallScore={overallScore}
-        onMenuClick={() => setSidebarOpen(true)}
-      />
+    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
+      <Header overallScore={overallScore} onMenuClick={() => setSidebarOpen(true)} />
 
       <div className="flex flex-1 overflow-hidden relative">
-
-        {/* ── Desktop sidebar — always visible ≥ md ── */}
+        {/* Desktop sidebar */}
         <div className="hidden md:flex">
-          <Sidebar
-            onLessonSelect={onLessonSelect}
-            currentLessonId={currentLessonId}
-          />
+          <Sidebar onLessonSelect={onLessonSelect} currentLessonId={currentLessonId} />
         </div>
 
-        {/* ── Mobile drawer backdrop ── */}
+        {/* Mobile backdrop */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-fade-in"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* ── Mobile drawer ── */}
-        <div
-          className={`fixed inset-y-0 left-0 z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
-        >
+        {/* Mobile drawer */}
+        <div className={`fixed inset-y-0 left-0 z-50 md:hidden transform transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <Sidebar
             onLessonSelect={onLessonSelect}
             currentLessonId={currentLessonId}
@@ -53,16 +42,17 @@ export const AppLayout = ({ children, onLessonSelect, currentLessonId }) => {
           />
         </div>
 
-        <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950">
           {children}
         </main>
       </div>
 
+      {/* Achievement toast */}
       {showAchievement && (
-        <div className="fixed top-20 right-4 md:top-24 md:right-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 md:px-6 py-3 md:py-4 rounded-lg shadow-2xl animate-slide-in z-50 max-w-xs">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎉</span>
-            <p className="font-semibold text-sm md:text-base">{achievementText}</p>
+        <div className="fixed top-16 right-4 md:top-20 md:right-6 z-50 animate-slide-down">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700 text-slate-800 dark:text-slate-100 px-4 py-3 rounded-2xl shadow-card-lg max-w-xs">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-lg flex-shrink-0">🎉</div>
+            <p className="text-sm font-semibold">{achievementText}</p>
           </div>
         </div>
       )}
