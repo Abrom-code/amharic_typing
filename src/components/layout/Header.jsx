@@ -1,6 +1,24 @@
 import { Sun, Moon, Menu } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 
+/** Minimal keyboard/typing SVG logo */
+const TypingLogo = ({ className = 'w-5 h-5' }) => (
+  <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    {/* keyboard body */}
+    <rect x="2" y="6" width="20" height="13" rx="2.5" className="fill-current" opacity="0.15" />
+    <rect x="2" y="6" width="20" height="13" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+    {/* top row keys */}
+    <rect x="5"  y="9.5" width="2.2" height="2" rx="0.5" fill="currentColor" opacity="0.7" />
+    <rect x="8.5" y="9.5" width="2.2" height="2" rx="0.5" fill="currentColor" opacity="0.7" />
+    <rect x="12" y="9.5" width="2.2" height="2" rx="0.5" fill="currentColor" opacity="0.7" />
+    <rect x="15.5" y="9.5" width="2.2" height="2" rx="0.5" fill="currentColor" opacity="0.7" />
+    {/* bottom row spacebar */}
+    <rect x="5"  y="13" width="2.2" height="2" rx="0.5" fill="currentColor" opacity="0.7" />
+    <rect x="8.5" y="13" width="7"   height="2" rx="0.5" fill="currentColor" />
+    <rect x="17" y="13" width="2.2" height="2" rx="0.5" fill="currentColor" opacity="0.7" />
+  </svg>
+)
+
 export const Header = ({ overallScore = 0, onMenuClick }) => {
   const { isDark, toggleTheme } = useApp()
 
@@ -17,22 +35,31 @@ export const Header = ({ overallScore = 0, onMenuClick }) => {
           >
             <Menu className="w-5 h-5" />
           </button>
+
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold shadow-card">
-              🇪🇹
+            {/* Logo mark */}
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center text-white shadow-card">
+              <TypingLogo className="w-4 h-4" />
             </div>
-            <span className="text-base md:text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight hidden sm:block">
-              Amharic Typing
-            </span>
+            <div className="hidden sm:block">
+              <span className="text-base md:text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight leading-none">
+                Amharic Typing
+              </span>
+              <span className="hidden md:block text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-0.5">
+                Trainer
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Right: score + theme toggle */}
+        {/* Right: progress badge + theme toggle */}
         <div className="flex items-center gap-2 md:gap-3">
           {overallScore > 0 && (
             <div className="hidden sm:flex items-center gap-2 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700 rounded-xl px-3 py-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-              <span className="text-xs font-semibold text-brand-700 dark:text-brand-300">{overallScore}% complete</span>
+              <span className="text-xs font-semibold text-brand-700 dark:text-brand-300">
+                {overallScore}% complete
+              </span>
             </div>
           )}
           <button
@@ -40,10 +67,7 @@ export const Header = ({ overallScore = 0, onMenuClick }) => {
             aria-label="Toggle theme"
             className="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
-            {isDark
-              ? <Sun className="w-4 h-4" />
-              : <Moon className="w-4 h-4" />
-            }
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
       </div>
